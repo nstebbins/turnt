@@ -4,7 +4,8 @@ GRUN   = java org.antlr.v4.runtime.misc.TestRig
 hello:
 	$(ANTLR4) turntTest.g4
 	javac turntTest*.java
-	cat test | $(GRUN) turntTest prgm -gui
+	#cat test | $(GRUN) turntTest prgm -gui
+	javac Translate.java
 
 clean: 
 	$(RM) *.class *~

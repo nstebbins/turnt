@@ -38,6 +38,26 @@ public interface turntTestListener extends ParseTreeListener {
 	 */
 	void exitBody(turntTestParser.BodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link turntTestParser#dir}.
+	 * @param ctx the parse tree
+	 */
+	void enterDir(turntTestParser.DirContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link turntTestParser#dir}.
+	 * @param ctx the parse tree
+	 */
+	void exitDir(turntTestParser.DirContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link turntTestParser#action}.
+	 * @param ctx the parse tree
+	 */
+	void enterAction(turntTestParser.ActionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link turntTestParser#action}.
+	 * @param ctx the parse tree
+	 */
+	void exitAction(turntTestParser.ActionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link turntTestParser#method}.
 	 * @param ctx the parse tree
 	 */

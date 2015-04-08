@@ -11,8 +11,12 @@ start : 'register' ID 'main' ';'(start)?
 body : method (body)?
 ;
 
-method : 'dir' ID '{' block '}'
-| 'action' ID '{' block '}'
+dir : 'dir' ID '{' block '}';
+
+action : 'action' ID '{' block '}';
+
+method : dir
+| action
 ;
 
 block : line(block)?
