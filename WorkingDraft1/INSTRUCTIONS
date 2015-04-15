@@ -1,0 +1,13 @@
+Build Instructions
+------------------
+
+Download antlr jar to this directory
+    wget http://www.antlr.org/download/antlr-4.0-complete.jar
+
+Build the translator and translate the test program
+Note that this takes ~10 seconds on CLIC
+    chmod +x run_trans.sh
+    ./run_trans.sh turntTest test.tt
+
+Run the test program
+    java Main
