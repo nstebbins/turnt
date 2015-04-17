@@ -1,0 +1,4 @@
+register start main;
+dir start {
+	print "Hello World";
+}
