@@ -1,4 +1,0 @@
-register start main;
-dir start {
-	print "Hello world Noah eats chicken";
-}
