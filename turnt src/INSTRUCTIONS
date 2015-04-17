@@ -6,8 +6,8 @@ Download antlr jar to this directory
 
 Build the translator and translate the test program
 Note that this takes ~10 seconds on CLIC
-    chmod +x run_trans.sh
-    ./run_trans.sh turntTest test.tt
+    chmod +x run.sh
+    ./run.sh turntTest test.tt
 
 Run the test program
     java Main
