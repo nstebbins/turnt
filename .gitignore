@@ -1,1 +1,13 @@
 *.jar
+*.class
+*.tokens
+turntTest*.java
+Actions.*
+Directive.*
+Engine.*
+Event.*
+Main.*
+mainEvent.*
+startDirective.*
+State.*
+
