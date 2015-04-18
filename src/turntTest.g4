@@ -1,71 +1,88 @@
 grammar turntTest;
 
-prgm : start body
-| body start body
+prgm : method*
 | EOF
-;
-
-start : 'register' ID 'main' ';'(start)?
-;
-
-body : (method)*
 ;
 
 method : dir
 | action
+| registerMain
+| register
+| event
 ;
 
-dir: 'dir' ID '{' block '}'
+registerMain : 'register' ID 'main' ';';
+
+register : 'register' ID ID ';';
+
+dir : 'dir' ID '{' blocks '}';
+
+action : 'action' ID '{' blocks '}';
+
+event : 'event' ID ';';
+
+blocks: block+;
+
+block : for_blk
+| while_blk
+| if_blk
+| ifelse_blk
+| line+
 ;
 
-action: 'action' ID '{' block '}'
+for_blk : 'for' '(' for_ex ')' '{' block '}';
+
+while_blk : 'while' '(' bexpr ')' '{' block '}';
+
+if_blk: 'if' '(' bexpr ')' '{' block '}';
+
+ifelse_blk : 'if' '(' bexpr ')' '{' block '}' 'else' '{' block '}';
+
+
+line : prompt
+| print
+| register
+| state
+| emit
+| import_ex
+| action_inv
+| assign
 ;
 
-block : line(block)?
-| for
-| while
-| if
+prompt : 'prompt' ID ';';
+
+print : 'print' String ';'
+| 'print' stateGet ';'
 ;
 
-for: 'for' '(' (aexpr|assign) ';' bexpr ';' assign ')';
-
-while: 'while' bexpr '{' block '}';
-
-if : 'if' bexpr '{' block '}'
-| 'if' bexpr '{' block '}' 'else' '{' block '}'
+state :  stateNew
+| stateGet
+| stateSet
 ;
 
-line : prompt';'
-| print ';'
-| event ';'
-| reg ';'
-| state ';'
-| emit ';'
-| import ';'
-| action ';'
-| assign ';'
+stateNew : 'state' type ID String ';';
+stateGet : 'state' ID ';';
+stateSet : 'state' ID String ';';
+
+emit : 'emit' ID 'in' ID ';'
+| 'emit' ID ';'
 ;
 
-prompt : 
+import_ex : 'module' ID '=' 'import' file ';';
 
-state : 'state' type ID
-| 'state' ID
-| 'state' assign
+file : ID '.tt';
+
+action_inv : 'action' ID ';'
+| ID ';'
 ;
 
-emit : 'emit' ID 'in' ID
-| 'emit' ID
+assign : type ID '=' expr
+| ID '=' expr
+| '(' assign ')'
 ;
 
-import : 'module' ID '= import' file 
-;
 
-action : 'action' ID
-| ID
-;
-
-file : ID '.tt'
-;
+for_ex : '(' (aexpr|assign) ';' bexpr ';' assign ')';
 
 bexpr : expr RELOP expr
 | '!' bexpr 
@@ -85,10 +102,6 @@ aexpr : aexpr OP aexpr
 | '(' aexpr ')'
 ;
 
-assign : type ID '=' expr
-| ID '=' expr
-| '(' assign ')'
-;
 
 type : 'int'
 | 'float'
@@ -117,6 +130,7 @@ OP : '+'
 | '-'
 | '*'
 | '/'
+| '%'
 ;
 
 Digit : [0-9] ;
