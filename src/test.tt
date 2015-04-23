@@ -1,4 +1,9 @@
 register start main;
+
+event meow;
 dir start {
 	print "Hello World";
+	register start meow;
+	emit meow;
 }
+
