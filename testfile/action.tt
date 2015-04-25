@@ -1,0 +1,24 @@
+/* No test output file for this test file. A sample test output may be:
+   Command:test
+   test
+   Command:exit
+   exit
+*/
+
+register start main;
+
+event play;
+
+dir start {
+	state string last_input;
+	while (last_input != "exit") {
+		perform get_input;
+		print last_input;
+	}
+}
+
+action get_input {
+	state last_input;
+	print "Command:";
+	prompt last_input;
+}

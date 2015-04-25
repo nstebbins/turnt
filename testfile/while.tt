@@ -1,0 +1,10 @@
+register whileTest main;
+
+dir whileTest {
+	int i = 0;
+	while (i < 10) {
+		//Unsure whether print will use integer as input parameter
+		print i;
+		i = i + 1;
+	}
+}
