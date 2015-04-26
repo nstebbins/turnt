@@ -268,6 +268,19 @@ public class turntToJava extends turntTestBaseListener {
 		currentFile = null;
 	}
 
+	/* triggering actions */
+	@Override
+	public void enterAction_stmt(turntTestParser.Action_stmtContext ctx) {
+		String ID = ctx.ID().getText();
+		String currtext = "\nActions." + ID + "();";
+
+		writeToFile(currtext, currentFile, true);
+	}
+
+	public void exitAction_stmt(turntTestParser.Action_stmtContext ctx) {
+		
+	}
+
 	//TODO: error if no event for register event.
 	public void enterEvent(turntTestParser.EventContext ctx) {
 		String ID = ctx.ID().getText();
