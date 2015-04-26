@@ -6,7 +6,7 @@ dir start {
             print "i" ;
         }
     
-        i = 1 ; 
+        i = 6 ; 
 
     }
 }
