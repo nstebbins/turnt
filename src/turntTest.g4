@@ -1,4 +1,4 @@
-grammar turntTest;
+grammar turntTest2;
 
 prgm : method*
 | EOF
@@ -21,22 +21,21 @@ action : 'action' ID '{' blocks '}';
 
 event : 'event' ID ';';
 
-blocks: block+;
+blocks: (block)* ;
 
 block : for_blk
 | while_blk
 | if_blk
-| ifelse_blk
 | line+
 ;
 
-for_blk : 'for' '(' for_ex ')' '{' block '}';
+for_blk : 'for' '(' for_expr ')' '{' blocks '}';
 
-while_blk : 'while' '(' bexpr ')' '{' block '}';
+while_blk : 'while' '(' bexpr ')' '{' blocks '}';
 
-if_blk: 'if' '(' bexpr ')' '{' block '}';
-
-ifelse_blk : 'if' '(' bexpr ')' '{' block '}' 'else' '{' block '}';
+if_blk: 'if''(' bexpr ')' '{' blocks '}'
+| 'if' '(' bexpr ')' '{' blocks '}' 'else' '{' blocks '}'
+;
 
 
 line : prompt
@@ -44,15 +43,16 @@ line : prompt
 | register
 | state
 | emit
-| import_ex
-| action_inv
-| assign
+| import_stmt
+| action_stmt
+| assign ';'
 ;
 
 prompt : 'prompt' ID ';';
 
 print : 'print' String ';'
 | 'print' stateGet ';'
+| print expr ';'
 ;
 
 state :  stateNew
@@ -68,13 +68,25 @@ emit : 'emit' ID 'in' ID ';'
 | 'emit' ID ';'
 ;
 
-import_ex : 'module' ID '=' 'import' file ';';
+bexpr : expr '==' expr 
+| expr RELOP expr
+| '!' bexpr 
+| bexpr '&&' bexpr
+| bexpr '||' bexpr
+| '(' bexpr ')'
+;
+
+RELOP : '<' | '>' | '<=' | '>=' | '!=' | '!>' | '!<' ;
+
+
+import_stmt : 'module' ID '=' 'import' file ';';
 
 file : ID '.tt';
 
-action_inv : 'action' ID ';'
+action_stmt : 'action' ID ';'
 | ID ';'
 ;
+
 
 assign : type ID '=' expr
 | ID '=' expr
@@ -82,14 +94,7 @@ assign : type ID '=' expr
 ;
 
 
-for_ex : '(' (aexpr|assign) ';' bexpr ';' assign ')';
-
-bexpr : expr RELOP expr
-| '!' bexpr 
-| bexpr '&&' bexpr
-| bexpr '||' bexpr
-| '(' bexpr ')'
-;
+for_expr : (aexpr|assign) ';' bexpr ';' assign ;
 
 expr : aexpr
 | '(' expr ')'
@@ -124,13 +129,11 @@ FLOAT : INT.(INT)?
 | '-' FLOAT
 ;
 
-RELOP : '<' | '>' | '==' | '<=' | '>=' | '!=' | '!>' | '!<' ;
-
-OP : '+'
-| '-'
-| '*'
+OP : '*'
 | '/'
 | '%'
+| '+'
+| '-'
 ;
 
 Digit : [0-9] ;
