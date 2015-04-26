@@ -70,6 +70,10 @@ public class turntToJava extends turntTestBaseListener {
 
 		File event_file = new File("Event.java");
 		writeToFile(event, event_file, false);
+
+		/* Creates Actions.java */
+		File action_file = new File("Actions.java");
+		writeToFile("public class Actions {\n", action_file, false);
     }
 
 	
@@ -178,6 +182,10 @@ public class turntToJava extends turntTestBaseListener {
 			File event_file = new File(eventID+".java");
 			writeToFile(event, event_file, false);
 		}
+
+		/* add closing brace */
+		File action_file = new File("Actions.java");
+		writeToFile("}\n", action_file, true);
 	}
 
 	@Override
@@ -238,6 +246,25 @@ public class turntToJava extends turntTestBaseListener {
 
 	public void exitDir(turntTestParser.DirContext ctx) {
 		writeToFile("\t}\n}\n", currentFile, true);
+		currentFile = null;
+	}
+
+	/* modify files properly for actions */
+	@Override
+	public void enterAction(turntTestParser.ActionContext ctx) {
+		// declared action?
+		String ID = ctx.ID().getText();
+		String action = "\n\npublic static void " + ID + "()" + "{\n";
+
+		// add action to Actions class
+		File action_file = new File("Actions.java");
+		currentFile = action_file;
+		writeToFile(action, action_file, true);
+	}
+
+	public void exitAction(turntTestParser.ActionContext ctx) {
+		File action_file = new File("Actions.java");
+		writeToFile("}\n\n", action_file, true);
 		currentFile = null;
 	}
 

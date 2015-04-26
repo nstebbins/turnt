@@ -4,8 +4,8 @@ run:
 	$(ANTLR4) turntTest.g4
 	javac turntTest*.java
 	javac Translate.java
-	cat test.tt | java Translate
+	cat ../testfile/action.tt | java Translate
 	javac Main.java
 
 clean: 
-	$(RM) *.class *~ *.tokens turntTest*java Actions.java Directive.java Engine.java Event.java Main.java State.java startDirective.java mainEvent.java
+	$(RM) *.class *~ *.tokens turntTest2*java Actions.java Directive.java Engine.java Event.java Main.java State.java startDirective.java mainEvent.java
