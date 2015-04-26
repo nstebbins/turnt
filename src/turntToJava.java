@@ -8,6 +8,7 @@ public class turntToJava extends turntTestBaseListener {
 	
 	private boolean hasMain = false;
 	private HashMap<String, ArrayList> eventMap;
+	private ArrayList<String> directiveList;
 	private File currentFile;
    
    
@@ -15,6 +16,7 @@ public class turntToJava extends turntTestBaseListener {
 	public turntToJava(){
 		super();
 		eventMap = new HashMap<String, ArrayList>();
+		directiveList = new ArrayList<String>();
 	}
 	
 
@@ -97,16 +99,26 @@ public class turntToJava extends turntTestBaseListener {
 		String engine = /*package turnt;*/ "\n\nimport java.util."
 					+ "HashMap; \nimport java.util.PriorityQueue;"
 					+ " \n\npublic class Engine { \n\tprivate "
-					+ "PriorityQueue<Directive> directiveQueue; "
-					+ "\n\tprivate HashMap<String, Event> "
-					+ "eventMap; \n\n\t";
+					+ "static PriorityQueue<Directive> directiveQueue; "
+					+ "\n\tprivate static HashMap<String, Event> "
+					+ "eventMap;\n\tprivate static HashMap<String, "
+					+ "Directive> directiveMap;\n\n\t";
 
 		if (hasMain) {
 			engine = engine + "public Engine() { \n\t\t"
 					+ "directiveQueue = new PriorityQueue(); \n\t\t"
 					+ "eventMap = new HashMap<String, Event>(); \n\t\t"
+					+ "directiveMap = new HashMap<String, Directive>();\n\t\t"
 					+ "eventMap.put(\"MainEvent\", new mainEvent"
-					+ "());\n\t}\n\n";
+					+ "());";
+			for (String evt : eventMap.keySet()) {
+				engine += "\n\t\teventMap.put(\"" + evt + "\", new " + evt + "());";
+			}
+			for (String dir : directiveList) {
+				engine += "\n\t\tdirectiveMap.put(\"" + dir + "\", new " + dir + "());";
+			}
+			engine += "\n\t}\n\n";
+
 		}
 		else {
 			engine = engine + "public Engine() { \n\t\t"
@@ -115,16 +127,31 @@ public class turntToJava extends turntTestBaseListener {
 					+ "}\n}\n\n";   
 		}
 
-		engine = engine + "\tpublic void push(Directive directive) {"
-				+ "\n\t\tdirectiveQueue.add(directive);\n\t}"
-				+ "\n\n\tpublic Directive pop() {\n\t\t"
-				+ "return directiveQueue.poll();\n\t}"
-				+ "\n\n\tpublic boolean hasNext() { \n\t\t"
-				+ "return !directiveQueue.isEmpty();\n\t}\n\t"
-				+ "public void emitEvent(String event) {"
+		engine = engine + "\tpublic static void push(Directive directive) {"
+				+ "\n\t\tdirectiveQueue.add(directive);"
+				+ "\n\t}"
+				+ "\n\n\tpublic static Directive pop() {"
+				+ "\n\t\treturn directiveQueue.poll();"
+				+ "\n\t}"
+				+ "\n\n\tpublic static boolean hasNext() {"
+				+ "\n\t\treturn !directiveQueue.isEmpty();"
+				+ "\n\t}"
+				+ "\n\tpublic static void emitEvent(String event) {"
 				+ "\n\t\tfor(Directive directive : eventMap."
-				+ "get(event).evt()) {\n\t\t\tpush(directive);"
-				+ "\n\t\t}\n\t}\n}\n";
+				+ "get(event).evt()) {"
+				+ "\n\t\t\tpush(directive);"
+				+ "\n\t\t}"
+				+ "\n\t}"
+				+ "\n\n\tpublic static void "
+				+ "registerDynamic(String dir, String evt) {"
+				+ "\n\t\tDirective target = directiveMap.get(dir);"
+				+ "\n\t\teventMap.get(evt).register(target);"
+				+ "\n\t}"
+				+ "\n\n\tpublic static void createDirective("
+				+ "String name, Directive dir) {"
+				+ "\n\t\tdirectiveMap.put(name, dir);"
+				+ "\n\t}"
+				+ "\n}\n";
 
 		File engine_file = new File("Engine.java");
 		writeToFile(engine, engine_file, false);
@@ -171,6 +198,7 @@ public class turntToJava extends turntTestBaseListener {
 		}
 	}
 
+	//TODO: Priorities for directives.
 	public void enterRegister(turntTestParser.RegisterContext ctx) {
 		if (currentFile == null) {
 			//Not in a block.
@@ -188,7 +216,9 @@ public class turntToJava extends turntTestBaseListener {
 			}
 		} else {
 			//In a block.
-			//TODO: Support 
+			writeToFile("Engine.registerDynamic(\"" + ctx.getChild(1)
+					+ "Directive\", \"" + ctx.getChild(2) + "Event\");\n",
+					currentFile, true);	
 		}
 	}
 
@@ -196,9 +226,10 @@ public class turntToJava extends turntTestBaseListener {
 	@Override
 	public void enterDir(turntTestParser.DirContext ctx) {
 		String ID = ctx.ID().getText();
-		String dir = /*package turnt;*/ "\n\npublic class " 
-				+ ID + "Directive extends Directive {\n\tpublic void" 
-				+ " dir() {\n";
+		directiveList.add(ID + "Directive");
+		String dir = /*package turnt;*/ "\n\npublic class "
+					+ ID + "Directive extends Directive {"
+					+ "\n\tpublic void dir() {\n";
 
 		File dir_file = new File(ID + "Directive.java");
 		currentFile = dir_file;
@@ -210,12 +241,19 @@ public class turntToJava extends turntTestBaseListener {
 		currentFile = null;
 	}
 
+	//TODO: error if no event for register event.
+	public void enterEvent(turntTestParser.EventContext ctx) {
+		String ID = ctx.ID().getText();
+		if (!eventMap.containsKey(ID + "Event")) {
+			ArrayList<String> eventList = new ArrayList<String>();
+			eventMap.put(ID + "Event", eventList);
+		}
+	}
+
 	public void enterPrint(turntTestParser.PrintContext ctx) {
 		writeToFile("System.out.println(" + ctx.getChild(1)
 				+ ");\n", currentFile, true);
 	}
-
-	//TODO: Event in block.
 
 	/*public void enterLine(turntTestParser.LineContext ctx){
 		String s = ctx.getChild(0).getText();
@@ -236,17 +274,22 @@ public class turntToJava extends turntTestBaseListener {
 	//TODO: Must make state into an expr.
 	public void enterStateNew(turntTestParser.StateNewContext ctx) {
 		writeToFile("State.changeState(" + ctx.getChild(2)
-				+ ", " + ctx.getChild(3) + ");", currentFile, true);
+				+ ", " + ctx.getChild(3) + ");\n", currentFile, true);
 	}
 
 	public void enterStateGet(turntTestParser.StateGetContext ctx) {
-		writeToFile("State.getState(" + ctx.getChild(1) + ");",
+		writeToFile("State.getState(" + ctx.getChild(1) + ");\n",
 				currentFile, true);
 	}
 
 	public void enterStateSet(turntTestParser.StateSetContext ctx) {
 		writeToFile("State.changeState(" + ctx.getChild(1)
-				+ ", " + ctx.getChild(2) + ");", currentFile, true);
+				+ ", " + ctx.getChild(2) + ");\n", currentFile, true);
+	}
+
+	public void enterEmit(turntTestParser.EmitContext ctx) {
+		writeToFile("Engine.emitEvent(\"" + ctx.getChild(1) + "Event\");\n",
+				currentFile, true);
 	}
 
 	//TODO: Try with resources.

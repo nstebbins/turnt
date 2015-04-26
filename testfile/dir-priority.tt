@@ -1,0 +1,15 @@
+register print0 main;
+register print1 main;
+register print2 main;
+
+dir print0 {
+	print 0;
+}
+
+dir print1 {
+	print 1;
+}
+
+dir print2 {
+	print 2;
+}

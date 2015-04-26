@@ -1,0 +1,20 @@
+This is a folder containing all the test files needed for turnt language.
+
+Flow-of-control testfiles:
+if-else.tt	if-else.out	//Test if-else statement
+for.tt		for.out		//Test for statement
+while.tt	while.out	//Test while statement
+
+Input-output testfiles:
+print.tt	print.out	//Test print statement
+prompt.tt 			//Test prompt statement, no example output provided
+
+ testfiles:
+event.tt	event.out	//Test event 
+action.tt	action.out	//Test action
+playter.tt + game.tt	game.out	//Test module
+
+Priority testfiles:
+dir-priority.tt	dir-priority.out	//Test priority for directory
+
+

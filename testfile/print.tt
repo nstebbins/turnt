@@ -6,4 +6,3 @@ dir start {
 	register start meow;
 	emit meow;
 }
-

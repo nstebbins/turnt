@@ -1,0 +1,10 @@
+register forTest main;
+
+dir forTest{
+	int i;
+	for (i = 0; i < 10; i = i + 1) {
+		//Unsure whether to use integer as input parameter for print
+		print i;
+	}
+}
+

@@ -1,0 +1,7 @@
+register start main;
+
+dir start {
+	string input;
+	print "Please input something and I will mirror them:";
+	prompt input;
+}	
