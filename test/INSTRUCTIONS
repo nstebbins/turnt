@@ -10,9 +10,25 @@ Acquire JUnit and Hamcrest:
 Depending on where you choose to put ANTLR, JUnit, Hamcrest you may have to
 modify the relative paths of various libraries in run_test.sh
 
-Run Test
+Run all tests
     ./run_test.sh
+
+Run a particular test
+    ./run_test.sh MyTest
 
 To Write Tests
 ==============
-TODO: Directory-based test structure
+Create a directory for each individual test
+    mkdir MyTest
+
+Write the turnt code you want tested in
+    MyTest/MyTest.tt
+
+Write the JUnit testing code in
+    MyTest/MyTest.java
+
+Consult the [JUnit Documentation](http://junit.org/) for details on how to
+write tests. Note that test methods are annotated with @Test
+Also note that the directory, turnt code, and JUnit test code all have the
+same file name stem (e.g. MyTest) -- case matters!
+
