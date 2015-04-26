@@ -141,3 +141,6 @@ Digit : [0-9] ;
 ID : [A-Za-z]([0-9A-Za-z])* ;
 
 WS : [ \t\r\n] -> skip;
+
+COMMENT : '/*' .*? '*/' -> skip;
+FORMALCOMMENT :  '//' ~('\n'|'\r')* '\r'? '\n' -> skip;

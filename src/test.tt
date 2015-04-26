@@ -1,6 +1,12 @@
 register start main;
 
+//Comment
+
 event meow;
+
+/* Another Comment
+*/
+
 dir start {
 	print "Hello World";
 	register start meow;
