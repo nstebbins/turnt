@@ -1,0 +1,10 @@
+register start main;
+register start2 main;
+
+dir start {
+    print "Hello World!";
+}
+
+dir start2 {
+    print "Hello World Again!";
+}

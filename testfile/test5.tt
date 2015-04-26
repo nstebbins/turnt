@@ -1,0 +1,10 @@
+register start main;
+event play ;
+dir start {
+    register startTurn play;
+    emit play;
+}
+
+dir startTurn {
+    print "The first turn has started!" ;
+}
