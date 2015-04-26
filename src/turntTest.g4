@@ -1,4 +1,4 @@
-grammar turntTest2;
+grammar turntTest;
 
 prgm : method*
 | EOF
