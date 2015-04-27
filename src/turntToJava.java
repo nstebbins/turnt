@@ -478,12 +478,17 @@ public class turntToJava extends turntTestBaseListener {
         @Override
         public void enterBexpr(turntTestParser.BexprContext ctx){
             String s = ctx.getText();
-            String c = ctx.getParent().getParent().getChild(0).getText(); 
-            if(!c.equals("for")){
+            String uncle = ctx.getParent().getParent().getChild(0).getText(); 
+            String uncle2 = ctx.getParent().getChild(0).getText(); 
+            if(!uncle.equals("for") && !uncle2.equals("while") 
+                    && !uncle2.equals("if")){
                 s = s + ";\n";
             }
-            else{
+            else if(uncle.equals("for")){
                 s = s + ";";
+            }
+            else{
+                s = "";
             }
             
             writeToFile(s, currentFile, true); 
