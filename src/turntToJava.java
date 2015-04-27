@@ -352,31 +352,16 @@ public class turntToJava extends turntTestBaseListener {
 
         @Override
         public void enterFor_blk(turntTestParser.For_blkContext ctx){
-            String stmt = ctx.getText();
-            int index = stmt.indexOf('(');
-            String s = stmt.substring(0, index+1);
-            writeToFile(s, currentFile, true);
-/*            String block = ctx.getText();
-            int index = block.indexOf('{');
-            String s = block.substring(0,index+1) + "\n";
-           
-            RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
-            int childNum = init.getChild(0).getChildCount();
-            String first_stmt = init.getText();
-            System.out.println(childNum);
-            System.out.println(first_stmt.getText());
-            String s = block.substring(0,index+1) + "\n";
-            
-            if(childNum > 0){
-                s.replace(first_stmt, "");    
-            }
-            //String s = block.substring(0,index+1) + "\n";
-            writeToFile(s, currentFile, true);*/
+             String for_blk = ctx.getText();
+             int index = for_blk.indexOf('(');
+             String s = for_blk.substring(0, index+1);
+             writeToFile(s, currentFile, true);
+             //System.out.println(s);
         }
 
         @Override
         public void exitFor_blk(turntTestParser.For_blkContext ctx){
-            String stmt = ctx.getText();
+            /*String stmt = ctx.getText();
             int index = stmt.indexOf('{');
             String s = stmt.substring(0,index+1);
            
@@ -395,8 +380,73 @@ public class turntToJava extends turntTestBaseListener {
             System.out.println(s);
             s = s + "\n";
             writeToFile(s, currentFile, true);
-         
+         */
             writeToFile("\n}\n", currentFile, true);
+        }
+
+        @Override
+        public void enterFor_expr(turntTestParser.For_exprContext ctx){     
+            String for_expr = ctx.getText();
+            /*int index = for_expr.indexOf('{');
+            String for_stmt = for_blk.substring(0,index+1) + "\n";
+            */
+            int childNum = ctx.assign().get(0).getChildCount(); 
+            /*RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
+            int childNum = init.getChild(0).getChildCount();
+            String init_stmt = init.getText();*/
+            /*System.out.println(childNum);
+            System.out.println(init_stmt.getText());
+            //String s = block.substring(0,index2+1) + "\n";
+            */
+            //System.out.println(childNum);
+            if(childNum == 0){
+                String init_stmt = ctx.getChild(0).getText();
+                writeToFile(init_stmt, currentFile, true);
+           //     System.out.println(init_stmt);
+            }
+             /*   int i = for_stmt.indexOf('(');
+                String s = for_stmt.substring(0, i+1);
+                writeToFile(s, currentFile, true);
+                
+                enterAssign(ctx.for_expr().assign().get(0));
+                
+                int j = for_stmt.indexOf(';');
+                String end_stmt = for_stmt.substring(j, index+1);
+                writeToFile(end_stmt, currentFile, true);     
+            }
+            else{
+            //String s = block.substring(0,index+1) + "\n";
+                writeToFile(for_stmt, currentFile, true);
+            }*/
+        }
+
+        @Override
+        public void exitFor_expr(turntTestParser.For_exprContext ctx){
+            String for_expr = ctx.getText();
+            
+            int index = for_expr.indexOf(';');
+            int index2 = for_expr.indexOf(';', index+1);
+            //String mid_stmt = for_expr.substring(index, index2);
+            //writeToFile(mid_stmt, currentFile, true);
+            //System.out.println(mid_stmt);
+            int childNum = ctx.assign().get(1).getChildCount(); 
+            /*RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
+            int childNum = init.getChild(0).getChildCount();
+            String init_stmt = init.getText();*/
+            /*System.out.println(childNum);
+            System.out.println(init_stmt.getText());
+            //String s = block.substring(0,index2+1) + "\n";
+            */
+            //System.out.println(childNum);
+            if(childNum == 0){
+                String end_stmt = ctx.getChild(4).getText() + "){\n";
+                writeToFile(end_stmt, currentFile, true);
+                //System.out.println(end_stmt);
+            }
+            else{
+                writeToFile("){\n", currentFile, true);
+            } 
+            
         }
 
         @Override
@@ -426,6 +476,20 @@ public class turntToJava extends turntTestBaseListener {
         }
 
         @Override
+        public void enterBexpr(turntTestParser.BexprContext ctx){
+            String s = ctx.getText();
+            String c = ctx.getParent().getParent().getChild(0).getText(); 
+            if(!c.equals("for")){
+                s = s + ";\n";
+            }
+            else{
+                s = s + ";";
+            }
+            
+            writeToFile(s, currentFile, true); 
+        }
+
+        @Override
         public void exitAssign(turntTestParser.AssignContext ctx){  
             int childNum = ctx.getChild(0).getChildCount();
             String s = null; 
@@ -434,13 +498,22 @@ public class turntToJava extends turntTestBaseListener {
                     s = ctx.getText().replace(child, ""); 
                     //writeToFile(s, currentFile, true); 
             }
-
             else{
                 s = ctx.getText();
                 //writeToFile(s, currentFile, true);
             }
-         
-            s = s + ";\n";
+        
+            String sib = ctx.getParent().getParent().getChild(0).getText(); 
+            if(!sib.equals("for")){
+                s = s + ";\n";
+            }
+            else{
+                String sib2 = ctx.getParent().getParent().getChild(2).getChild(0).getText();
+                if(sib2.equals(ctx.getText())){
+                    s = s + ";";
+                } 
+            } 
+            
             writeToFile(s, currentFile, true); 
         }
 
