@@ -1,0 +1,8 @@
+register forTest main;
+
+dir forTest{
+	for (int i = 0; i < 10; i = i + 1) {
+		print "0";
+	}
+}
+
