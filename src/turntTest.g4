@@ -119,11 +119,13 @@ String : '"' .*? '"'
 
 Number : INT | FLOAT ;
 
-INT : Digit(INT)?
-| '-' INT
+UINT : Digit(UINT)? ;
+
+INT : UINT
+| '-' UINT
 ;
 
-FLOAT : INT.(INT)?
+FLOAT : UINT '.' UINT
 | '-' FLOAT
 ;
 
