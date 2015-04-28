@@ -1,0 +1,3 @@
+1. for(int i = 0; i < 10; i = i + 1){};
+This could not be complied due to: unable to treat ";" as a seperator because there is no white space between 0 and ";". Unable
+to parse "i = i + 1" correctly. 
