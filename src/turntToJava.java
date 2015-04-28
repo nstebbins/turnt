@@ -7,7 +7,7 @@ import java.io.*;
 public class turntToJava extends turntTestBaseListener {
 	
 	private boolean hasMain = false;
-	private HashMap<String, ArrayList> eventMap;
+	private HashMap<String, ArrayList<String>> eventMap;
 	private ArrayList<String> directiveList;
 	private File currentFile;
    
@@ -15,7 +15,7 @@ public class turntToJava extends turntTestBaseListener {
 	/** Constructor */
 	public turntToJava(){
 		super();
-		eventMap = new HashMap<String, ArrayList>();
+		eventMap = new HashMap<String, ArrayList<String>>();
 		directiveList = new ArrayList<String>();
 	}
 	
@@ -70,6 +70,10 @@ public class turntToJava extends turntTestBaseListener {
 
 		File event_file = new File("Event.java");
 		writeToFile(event, event_file, false);
+
+		/* Creates Actions.java */
+		File action_file = new File("Actions.java");
+		writeToFile("public class Actions {\n", action_file, false);
     }
 
 	
@@ -106,7 +110,7 @@ public class turntToJava extends turntTestBaseListener {
 
 		if (hasMain) {
 			engine = engine + "public Engine() { \n\t\t"
-					+ "directiveQueue = new PriorityQueue(); \n\t\t"
+					+ "directiveQueue = new PriorityQueue<Directive>(); \n\t\t"
 					+ "eventMap = new HashMap<String, Event>(); \n\t\t"
 					+ "directiveMap = new HashMap<String, Directive>();\n\t\t"
 					+ "eventMap.put(\"MainEvent\", new mainEvent"
@@ -178,6 +182,10 @@ public class turntToJava extends turntTestBaseListener {
 			File event_file = new File(eventID+".java");
 			writeToFile(event, event_file, false);
 		}
+
+		/* add closing brace */
+		File action_file = new File("Actions.java");
+		writeToFile("}\n", action_file, true);
 	}
 
 	@Override
@@ -239,6 +247,38 @@ public class turntToJava extends turntTestBaseListener {
 	public void exitDir(turntTestParser.DirContext ctx) {
 		writeToFile("\t}\n}\n", currentFile, true);
 		currentFile = null;
+	}
+
+	/* modify files properly for actions */
+	@Override
+	public void enterAction(turntTestParser.ActionContext ctx) {
+		// declared action?
+		String ID = ctx.ID().getText();
+		String action = "\n\npublic static void " + ID + "()" + "{\n";
+
+		// add action to Actions class
+		File action_file = new File("Actions.java");
+		currentFile = action_file;
+		writeToFile(action, action_file, true);
+	}
+
+	public void exitAction(turntTestParser.ActionContext ctx) {
+		File action_file = new File("Actions.java");
+		writeToFile("}\n\n", action_file, true);
+		currentFile = null;
+	}
+
+	/* triggering actions */
+	@Override
+	public void enterAction_stmt(turntTestParser.Action_stmtContext ctx) {
+		String ID = ctx.ID().getText();
+		String currtext = "\nActions." + ID + "();";
+
+		writeToFile(currtext, currentFile, true);
+	}
+
+	public void exitAction_stmt(turntTestParser.Action_stmtContext ctx) {
+		
 	}
 
 	//TODO: error if no event for register event.
@@ -309,4 +349,185 @@ public class turntToJava extends turntTestBaseListener {
 			}
 		}
 	}
+
+        @Override
+        public void enterFor_blk(turntTestParser.For_blkContext ctx){
+             String for_blk = ctx.getText();
+             int index = for_blk.indexOf('(');
+             String s = for_blk.substring(0, index+1);
+             writeToFile(s, currentFile, true);
+             //System.out.println(s);
+        }
+
+        @Override
+        public void exitFor_blk(turntTestParser.For_blkContext ctx){
+            /*String stmt = ctx.getText();
+            int index = stmt.indexOf('{');
+            String s = stmt.substring(0,index+1);
+           
+            RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
+            int childNum = init.getChild(0).getChildCount();
+            String first_stmt = init.getText();
+            //System.out.println(childNum);
+            //System.out.println(first_stmt.getText());
+            //String s = block.substring(0,index+1) + "\n";
+            System.out.println(first_stmt);         
+            if(childNum > 0){
+                int i = stmt.indexOf(';');
+                s = s.substring(i,index+1);    
+                //System.out.println(s);
+            }
+            System.out.println(s);
+            s = s + "\n";
+            writeToFile(s, currentFile, true);
+         */
+            writeToFile("\n}\n", currentFile, true);
+        }
+
+        @Override
+        public void enterFor_expr(turntTestParser.For_exprContext ctx){     
+            String for_expr = ctx.getText();
+            /*int index = for_expr.indexOf('{');
+            String for_stmt = for_blk.substring(0,index+1) + "\n";
+            */
+            int childNum = ctx.assign().get(0).getChildCount(); 
+            /*RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
+            int childNum = init.getChild(0).getChildCount();
+            String init_stmt = init.getText();*/
+            /*System.out.println(childNum);
+            System.out.println(init_stmt.getText());
+            //String s = block.substring(0,index2+1) + "\n";
+            */
+            //System.out.println(childNum);
+            if(childNum == 0){
+                String init_stmt = ctx.getChild(0).getText();
+                writeToFile(init_stmt, currentFile, true);
+           //     System.out.println(init_stmt);
+            }
+             /*   int i = for_stmt.indexOf('(');
+                String s = for_stmt.substring(0, i+1);
+                writeToFile(s, currentFile, true);
+                
+                enterAssign(ctx.for_expr().assign().get(0));
+                
+                int j = for_stmt.indexOf(';');
+                String end_stmt = for_stmt.substring(j, index+1);
+                writeToFile(end_stmt, currentFile, true);     
+            }
+            else{
+            //String s = block.substring(0,index+1) + "\n";
+                writeToFile(for_stmt, currentFile, true);
+            }*/
+        }
+
+        @Override
+        public void exitFor_expr(turntTestParser.For_exprContext ctx){
+            String for_expr = ctx.getText();
+            
+            int index = for_expr.indexOf(';');
+            int index2 = for_expr.indexOf(';', index+1);
+            //String mid_stmt = for_expr.substring(index, index2);
+            //writeToFile(mid_stmt, currentFile, true);
+            //System.out.println(mid_stmt);
+            int childNum = ctx.assign().get(1).getChildCount(); 
+            /*RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
+            int childNum = init.getChild(0).getChildCount();
+            String init_stmt = init.getText();*/
+            /*System.out.println(childNum);
+            System.out.println(init_stmt.getText());
+            //String s = block.substring(0,index2+1) + "\n";
+            */
+            //System.out.println(childNum);
+            if(childNum == 0){
+                String end_stmt = ctx.getChild(4).getText() + "){\n";
+                writeToFile(end_stmt, currentFile, true);
+                //System.out.println(end_stmt);
+            }
+            else{
+                writeToFile("){\n", currentFile, true);
+            } 
+            
+        }
+
+        @Override
+        public void enterWhile_blk(turntTestParser.While_blkContext ctx){
+            String block = ctx.getText();
+            int index = block.indexOf('{');
+            String s = block.substring(0,index+1) + "\n";
+            writeToFile(s, currentFile, true);
+        }
+
+        @Override
+        public void exitWhile_blk(turntTestParser.While_blkContext ctx){
+            writeToFile("\n}\n", currentFile, true);
+        }
+
+        @Override
+        public void enterIf_blk(turntTestParser.If_blkContext ctx){
+            String block = ctx.getText();
+            int index = block.indexOf('{');
+            String s = block.substring(0,index+1) + "\n";
+            writeToFile(s, currentFile, true);
+        }
+
+        @Override
+        public void exitIf_blk(turntTestParser.If_blkContext ctx){
+            writeToFile("\n}\n", currentFile, true);
+        }
+
+        @Override
+        public void enterBexpr(turntTestParser.BexprContext ctx){
+            String s = ctx.getText();
+            String uncle = ctx.getParent().getParent().getChild(0).getText(); 
+            String uncle2 = ctx.getParent().getChild(0).getText(); 
+            if(!uncle.equals("for") && !uncle2.equals("while") 
+                    && !uncle2.equals("if")){
+                s = s + ";\n";
+            }
+            else if(uncle.equals("for")){
+                s = s + ";";
+            }
+            else{
+                s = "";
+            }
+            
+            writeToFile(s, currentFile, true); 
+        }
+
+        @Override
+        public void exitAssign(turntTestParser.AssignContext ctx){  
+            int childNum = ctx.getChild(0).getChildCount();
+            String s = null; 
+            if(childNum > 0){
+                    String child = ctx.getChild(0).getText();
+                    s = ctx.getText().replace(child, ""); 
+                    //writeToFile(s, currentFile, true); 
+            }
+            else{
+                s = ctx.getText();
+                //writeToFile(s, currentFile, true);
+            }
+        
+            String sib = ctx.getParent().getParent().getChild(0).getText(); 
+            if(!sib.equals("for")){
+                s = s + ";\n";
+            }
+            else{
+                String sib2 = ctx.getParent().getParent().getChild(2).getChild(0).getText();
+                if(sib2.equals(ctx.getText())){
+                    s = s + ";";
+                } 
+            } 
+            
+            writeToFile(s, currentFile, true); 
+        }
+
+        @Override
+        public void enterType(turntTestParser.TypeContext ctx){
+            String s = ctx.getChild(0).getText() + " "; 
+            writeToFile(s, currentFile, true);
+        }
+
+
+
 }
