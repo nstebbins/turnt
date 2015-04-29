@@ -476,7 +476,8 @@ public class turntToJava extends turntTestBaseListener {
             String block = ctx.getText();
             int index = block.indexOf('{');
             String s = block.substring(0,index+1) + "\n";
-            writeToFile(s, currentFile, true);
+            // writeToFile(s, currentFile, true);
+            writeToFile("while (", currentFile, true);
         }
 
         @Override
@@ -489,7 +490,8 @@ public class turntToJava extends turntTestBaseListener {
             String block = ctx.getText();
             int index = block.indexOf('{');
             String s = block.substring(0,index+1) + "\n";
-            writeToFile(s, currentFile, true);
+            //writeToFile(s, currentFile, true);
+            writeToFile("if (", currentFile, true);
         }
 
         @Override
@@ -508,6 +510,9 @@ public class turntToJava extends turntTestBaseListener {
             }
             else if(uncle.equals("for")){
                 s = s + ";";
+            }
+            else if(uncle2.equals("while") || uncle2.equals("if")) {
+                s = s + ") {\n";
             }
             else{
                 s = "";
