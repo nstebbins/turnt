@@ -1,6 +1,6 @@
 #!/bin/sh
 grammar=$1
-test=$2
+test=../testfile/$2
 
 echo "Building Grammar and Running Parser"
 antlr4 $grammar.g4

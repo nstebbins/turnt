@@ -291,9 +291,31 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	public void enterPrint(turntTestParser.PrintContext ctx) {
-		writeToFile("System.out.println(" + ctx.getChild(1)
-				+ ");\n", currentFile, true);
-	}
+	    int childNum = ctx.getChild(1).getChildCount();
+            String gChild = null;
+            if(childNum > 0){
+                gChild = ctx.getChild(1).getChild(0).getText();  
+                
+                if(childNum == 1){
+                    writeToFile("System.out.println(" + gChild 
+                            + ".toString());\n", currentFile, true);
+                }
+                
+               /* else if(childNum > 0 && !gChild.equals("state")){
+                    writeToFile("System.out.println(" + ctx.getChild(1)
+		            + ");\n", currentFile, true);
+	  
+                 }*/
+            }
+
+            else{
+                writeToFile("System.out.println(" + ctx.getChild(1)
+		            + ");\n", currentFile, true);
+	  
+                 
+            }    
+               
+        }
 
 	/*public void enterLine(turntTestParser.LineContext ctx){
 		String s = ctx.getChild(0).getText();
@@ -524,10 +546,43 @@ public class turntToJava extends turntTestBaseListener {
 
         @Override
         public void enterType(turntTestParser.TypeContext ctx){
-            String s = ctx.getChild(0).getText() + " "; 
+            String s = null;
+
+            int childNum = ctx.getParent().getChildCount();
+            String sample = "intfloatboolcharStringlist";
+
+            int index;
+            for(index=0; index<childNum; index++){
+                String sib = ctx.getParent().getChild(index).getText();
+                if(sample.contains(sib)){
+                    break;
+                } 
+            }
+             
+            String ID = ctx.getParent().getChild(index+1).getText();
+            String type = ctx.getText();
+            if(type.equals("int")){
+                s = "Integer ";
+            }
+            else if(type.equals("float")){
+                s = "Double ";
+            }
+            else if(type.equals("bool")){
+                s = "Boolean ";
+            }
+            else if(type.equals("char")){
+                s = "Character ";
+            }
+            else if(type.equals("String")){
+                s = "String ";
+            }
+            else if(type.equals("List")){
+                s = "List ";
+            }
+
+            //String s = ctx.getChild(0).getText() + " "; 
             writeToFile(s, currentFile, true);
         }
-
 
 
 }

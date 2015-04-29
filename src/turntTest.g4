@@ -4,6 +4,7 @@ prgm : method*
 | EOF
 ;
 
+
 method : dir
 | action
 | registerMain
@@ -11,15 +12,16 @@ method : dir
 | event
 ;
 
-registerMain : 'register' ID 'main' ';';
-
-register : 'register' ID ID ';';
-
 dir : 'dir' ID '{' blocks '}';
 
 action : 'action' ID '{' blocks '}';
 
+registerMain : 'register' ID 'main' ';';
+
+register : 'register' ID ID ';';
+
 event : 'event' ID ';';
+
 
 blocks: (block)* ;
 
@@ -52,7 +54,7 @@ prompt : 'prompt' ID ';';
 
 print : 'print' String ';'
 | 'print' stateGet ';'
-| print expr ';'
+| 'print' expr ';'
 ;
 
 state :  stateNew
@@ -67,6 +69,7 @@ stateSet : 'state' ID String ';';
 emit : 'emit' ID 'in' ID ';'
 | 'emit' ID ';'
 ;
+
 
 bexpr : expr '==' expr 
 | expr RELOP expr
@@ -87,25 +90,20 @@ action_stmt : 'action' ID ';'
 | ID ';'
 ;
 
-
 assign : type ID '=' expr
 | ID '=' expr
 | '(' assign ')'
 ;
 
 
-for_expr : (aexpr|assign) ';' bexpr ';' assign ;
+for_expr : (expr|assign) ';' bexpr ';' assign ;
 
-expr : aexpr
+expr : expr OP expr
 | '(' expr ')'
+| '-' expr
 | Number
 | ID
 ; 
-
-aexpr : aexpr OP aexpr
-| '-' '(' aexpr OP aexpr ')'
-| '(' aexpr ')'
-;
 
 
 type : 'int'
