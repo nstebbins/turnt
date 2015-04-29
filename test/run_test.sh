@@ -3,7 +3,7 @@ pushd `dirname $0` > /dev/null
 TEST_DIR=`pwd`
 LIB_DIR=$TEST_DIR
 ANTLR_LOCATION="$LIB_DIR/antlr-4.5-complete.jar"
-JUNIT_LOCATION="$LIB_DIR/junit-4.12.jar:$LIB_DIR/hamcrest-all-1.3.jar"
+JUNIT_LOCATION="$LIB_DIR/junit-4.12.jar:$LIB_DIR/hamcrest-core-1.3.jar"
 TRANS_LOCATION="$TEST_DIR/../src"
 
 if [ -z $1 ]
