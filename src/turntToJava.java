@@ -7,7 +7,7 @@ import java.io.*;
 public class turntToJava extends turntTestBaseListener {
 
 	private boolean hasMain = false;
-	private HashMap<String, ArrayList<String>> eventMap;
+	private HashMap<String, ArrayList<DirectiveTuple>> events;
 	private ArrayList<String> directiveList;
 	private File currentFile;
 
@@ -15,7 +15,7 @@ public class turntToJava extends turntTestBaseListener {
 	/** Constructor */
 	public turntToJava(){
 		super();
-		eventMap = new HashMap<String, ArrayList<String>>();
+		events = new HashMap<String, ArrayList<DirectiveTuple>>();
 		directiveList = new ArrayList<String>();
 	}
 
@@ -40,9 +40,27 @@ public class turntToJava extends turntTestBaseListener {
 		writeToFile(state, state_file, false);
 
 		/* Create Directive.java */
-		String dir = /*package turnt;*/ "\n\npublic class "
-			+ "Directive { \n\tpublic void dir(){}"
-			+ "\n}\n";
+		String dir = /*package turnt;*/ 
+			"\n\npublic class Directive implements Comparable<Directive> {\n"
+			+ "\tprivate int priority = 0;\n\n"
+			+ "\tpublic Directive() {\n"
+			+ "\t\tthis(0);\n"
+			+ "\t}\n\n"
+			+ "\tpublic Directive(int prio) {\n"
+			+ "\t\tpriority = prio;\n"
+			+ "\t}\n\n"
+			+ "\tpublic int getPriority() {\n"
+			+ "\t\treturn priority;\n"
+			+ "\t}\n\n"
+			+ "\tpublic void setPriority(int prio) {\n"
+			+ "\t\tpriority = prio;\n"
+			+ "\t}\n\n"
+			+ "\tpublic void dir(){}\n\n"
+			+ "\t@Override\n"
+			+ "\tpublic int compareTo(Directive o) {\n"
+			+ "\t\treturn priority - o.getPriority();\n"
+			+ "\t}\n"
+			+ "}\n";
 
 		File dir_file = new File("Directive.java");
 		writeToFile(dir, dir_file, false);
@@ -109,20 +127,19 @@ public class turntToJava extends turntTestBaseListener {
 			+ "Directive> directiveMap;\n\n\t";
 
 		if (hasMain) {
-			engine = engine + "public Engine() { \n\t\t"
-				+ "directiveQueue = new PriorityQueue<Directive>(); \n\t\t"
-				+ "eventMap = new HashMap<String, Event>(); \n\t\t"
+			engine = engine + "public Engine() {\n\t\t"
+				+ "directiveQueue = new PriorityQueue<Directive>();\n\t\t"
+				+ "eventMap = new HashMap<String, Event>();\n\t\t"
 				+ "directiveMap = new HashMap<String, Directive>();\n\t\t"
 				+ "eventMap.put(\"MainEvent\", new mainEvent"
 				+ "());";
-			for (String evt : eventMap.keySet()) {
+			for (String evt : events.keySet()) {
 				engine += "\n\t\teventMap.put(\"" + evt + "\", new " + evt + "());";
 			}
 			for (String dir : directiveList) {
 				engine += "\n\t\tdirectiveMap.put(\"" + dir + "\", new " + dir + "());";
 			}
 			engine += "\n\t}\n\n";
-
 		}
 		else {
 			engine = engine + "public Engine() { \n\t\t"
@@ -147,8 +164,9 @@ public class turntToJava extends turntTestBaseListener {
 			+ "\n\t\t}"
 			+ "\n\t}"
 			+ "\n\n\tpublic static void "
-			+ "registerDynamic(String dir, String evt) {"
+			+ "registerDynamic(String dir, String evt, int priority) {"
 			+ "\n\t\tDirective target = directiveMap.get(dir);"
+			+ "\n\t\ttarget.setPriority(priority);"
 			+ "\n\t\teventMap.get(evt).register(target);"
 			+ "\n\t}"
 			+ "\n\n\tpublic static void createDirective("
@@ -161,20 +179,22 @@ public class turntToJava extends turntTestBaseListener {
 		writeToFile(engine, engine_file, false);
 
 		/* Create all event classes */
-		Set<String> events = eventMap.keySet();
-		Iterator eventIter = events.iterator();
-		while(eventIter.hasNext()){
+		Set<String> eventSet = events.keySet();
+		Iterator eventIter = eventSet.iterator();
+		//Create each event.
+		while(eventIter.hasNext()) {
 			String eventID = eventIter.next().toString(); //test this
-			ArrayList<String> dirs = eventMap.get(eventID);   
-			String event = /*package turnt;*/ "\n\npublic class " 
-				+ eventID + " extends Event {"
+			ArrayList<DirectiveTuple> dirs = events.get(eventID);   
+			String event = /*package turnt;*/
+				"\n\npublic class " + eventID + " extends Event {"
 				+ "\n\tpublic " + eventID + "() {";
-
-			Iterator<String> dirIter = dirs.iterator();
+			//Add directives registered to event on top level.
+			Iterator<DirectiveTuple> dirIter = dirs.iterator();
 			while(dirIter.hasNext()){
-				String directive = dirIter.next();
-				event = event +  "\n\t\tsuper.register(new " 
-					+ directive + "());"; 
+				DirectiveTuple tup = dirIter.next();
+				String directive = tup.name;
+				event +=  "\n\t\tsuper.register(new "
+					+ directive + "(" + String.valueOf(tup.priority) + "));";
 			}
 
 			event = event + "\n\t} \n}";
@@ -188,46 +208,60 @@ public class turntToJava extends turntTestBaseListener {
 		writeToFile("}\n", action_file, true);
 	}
 
+	//Private class for String Int tuples.
+	private class DirectiveTuple {
+		public String name;
+		public int priority;
+
+		public DirectiveTuple(String n, int p) {
+			name = n;
+			priority = p;
+		}
+	}
+
 	@Override
 	public void enterRegisterMain(turntTestParser.RegisterMainContext ctx) {
 		hasMain = true;
 		String event = ctx.getChild(2).getText() + "Event";
 		String directive = ctx.ID().getText() + "Directive";
+		int priority = Integer.parseInt(ctx.getChild(3).getText());
 
-		if(!eventMap.containsKey(event)){
-			ArrayList<String> s = new ArrayList<String>();
-			s.add(directive);
-			eventMap.put(event, s);
+		if(!events.containsKey(event)){
+			ArrayList<DirectiveTuple> s = new ArrayList<DirectiveTuple>();
+			s.add(new DirectiveTuple(directive, priority));
+			events.put(event, s);
 		}
 		else{
-			ArrayList<String> s = eventMap.get(event);
-			s.add(directive);
-			eventMap.put(event, s);
+			ArrayList<DirectiveTuple> s = events.get(event);
+			s.add(new DirectiveTuple(directive, priority));
+			events.put(event, s);
 		}
 	}
 
-	//TODO: Priorities for directives.
 	@Override
 	public void enterRegister(turntTestParser.RegisterContext ctx) {
 		if (currentFile == null) {
 			//Not in a block.
 			String event = ctx.getChild(2).getText() + "Event";
 			String directive = ctx.getChild(1).getText() + "Directive";
+			int priority = Integer.parseInt(ctx.getChild(3).getText());
 
-			if (!eventMap.containsKey(event)) {
-				ArrayList<String> eventList = new ArrayList<String>();
-				eventList.add(directive);
-				eventMap.put(event, eventList);
-			} else {
-				ArrayList<String> eventList = eventMap.get(event);
-				eventList.add(directive);
-				eventMap.put(event, eventList);
+			if(!events.containsKey(event)){
+				ArrayList<DirectiveTuple> s = new ArrayList<DirectiveTuple>();
+				s.add(new DirectiveTuple(directive, priority));
+				events.put(event, s);
+			}
+			else{
+				ArrayList<DirectiveTuple> s = events.get(event);
+				s.add(new DirectiveTuple(directive, priority));
+				events.put(event, s);
 			}
 		} else {
 			//In a block.
 			writeToFile("Engine.registerDynamic(\"" + ctx.getChild(1)
-					+ "Directive\", \"" + ctx.getChild(2) + "Event\");\n",
-					currentFile, true);	
+					+ "Directive\", \"" + ctx.getChild(2) + "Event\", "
+					+ ctx.getChild(3) + ");\n",
+					currentFile, true);
 		}
 	}
 
@@ -236,9 +270,15 @@ public class turntToJava extends turntTestBaseListener {
 	public void enterDir(turntTestParser.DirContext ctx) {
 		String ID = ctx.ID().getText();
 		directiveList.add(ID + "Directive");
-		String dir = /*package turnt;*/ "\n\npublic class "
-			+ ID + "Directive extends Directive {"
-			+ "\n\tpublic void dir() {\n";
+		String dir = /*package turnt;*/ 
+			"\n\npublic class " + ID + "Directive extends Directive {\n"
+			+ "\tpublic " + ID + "Directive() {\n"
+			+ "\t\tsuper();\n"
+			+ "\t}\n\n"
+			+ "\tpublic " + ID + "Directive(int prio) {\n"
+			+ "\t\tsuper(prio);\n"
+			+ "\t}\n\n"
+			+ "\tpublic void dir() {\n";
 
 		File dir_file = new File(ID + "Directive.java");
 		currentFile = dir_file;
@@ -289,9 +329,9 @@ public class turntToJava extends turntTestBaseListener {
 	@Override
 	public void enterEvent(turntTestParser.EventContext ctx) {
 		String ID = ctx.ID().getText();
-		if (!eventMap.containsKey(ID + "Event")) {
-			ArrayList<String> eventList = new ArrayList<String>();
-			eventMap.put(ID + "Event", eventList);
+		if (!events.containsKey(ID + "Event")) {
+			ArrayList<DirectiveTuple> eventList = new ArrayList<DirectiveTuple>();
+			events.put(ID + "Event", eventList);
 		}
 	}
 
@@ -313,31 +353,11 @@ public class turntToJava extends turntTestBaseListener {
 
 			   }*/
 		}
-
 		else{
 			writeToFile("System.out.println(" + ctx.getChild(1)
 					+ ");\n", currentFile, true);
-
-
 		}    
-
 	}
-
-	/*public void enterLine(turntTestParser.LineContext ctx){
-	  String s = ctx.getChild(0).getText();
-	  if(s.equals("register")){
-	  String event = ctx.getStop().getText();
-	  String directive = ctx.getChild(1).getText();
-	  ArrayList arr = eventMap.get(event);
-	  arr.add(directive);
-	  eventMap.put(event, arr);
-	  }        
-
-	  if(s.equals("event")){
-	  String event = ctx.getStop().getText();
-	  eventMap.put(event, null);
-	  }	
-	  }*/
 
 	//TODO: Must make state into an expr.
 	@Override

@@ -1,0 +1,22 @@
+register hw1 main 20;
+register hw2 main 10;
+event meow;
+
+dir hw1 {
+	print "1";
+	register hw3 meow 10;
+	register hw4 meow 10;
+	emit meow;
+}
+
+dir hw2 {
+	print "2";
+}
+
+dir hw3 {
+	print "3";
+}
+
+dir hw4 {
+	print "4";
+}
