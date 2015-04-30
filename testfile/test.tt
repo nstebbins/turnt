@@ -1,8 +1,8 @@
 event meow;
-register start main ;
+register start main 10 ;
 dir start {
 	print "Hello World";
-	register start meow;
+	register start meow 5 ;
 	emit meow;
 }
 

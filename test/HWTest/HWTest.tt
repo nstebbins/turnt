@@ -1,4 +1,4 @@
-register start main;
+register start main 1;
 dir start {
 	print "Hello World";
 }

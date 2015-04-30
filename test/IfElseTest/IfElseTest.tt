@@ -1,4 +1,4 @@
-register ifelseTest main;
+register ifelseTest main 1;
 
 dir ifelseTest {
 	int i = 0;

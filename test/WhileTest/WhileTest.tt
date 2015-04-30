@@ -1,4 +1,4 @@
-register whileTest main;
+register whileTest main 1;
 
 dir whileTest {
 	int i = 0 ;

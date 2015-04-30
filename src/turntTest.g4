@@ -1,10 +1,11 @@
 grammar turntTest;
 
+//A program is any number of methods.
 prgm : method*
 | EOF
 ;
 
-
+//A method describes top level constructs.
 method : dir
 | action
 | registerMain
@@ -12,25 +13,29 @@ method : dir
 | event
 ;
 
+//Top level constructs
 dir : 'dir' ID '{' blocks '}';
 
 action : 'action' ID '{' blocks '}';
 
-registerMain : 'register' ID 'main' ';';
+registerMain : 'register' ID 'main' INT ';';
 
-register : 'register' ID ID ';';
+register : 'register' ID ID INT ';';
 
 event : 'event' ID ';';
 
-
+//Blocks exist between the braces of actions and directives.
+//Blocks consist of any number of block.
 blocks: (block)* ;
 
+//A block is either a flow control construct or line statement(s).
 block : for_blk
 | while_blk
 | if_blk
 | line+
 ;
 
+//Flow control constructs.
 for_blk : 'for' '(' for_expr ')' '{' blocks '}';
 
 while_blk : 'while' '(' bexpr ')' '{' blocks '}';
@@ -39,7 +44,7 @@ if_blk: 'if''(' bexpr ')' '{' blocks '}'
 | 'if' '(' bexpr ')' '{' blocks '}' 'else' '{' blocks '}'
 ;
 
-
+//Line statements are single line commands.
 line : prompt
 | print
 | register
@@ -50,6 +55,7 @@ line : prompt
 | assign ';'
 ;
 
+//Line statements.
 prompt : 'prompt' ID ';';
 
 print : 'print' String ';'
@@ -70,21 +76,7 @@ emit : 'emit' ID 'in' ID ';'
 | 'emit' ID ';'
 ;
 
-
-bexpr : expr '==' expr 
-| expr RELOP expr
-| '!' bexpr 
-| bexpr '&&' bexpr
-| bexpr '||' bexpr
-| '(' bexpr ')'
-;
-
-RELOP : '<' | '>' | '<=' | '>=' | '!=' | '!>' | '!<' ;
-
-
 import_stmt : 'module' ID '=' 'import' file ';';
-
-file : ID '.tt';
 
 action_stmt : 'action' ID ';'
 | ID ';'
@@ -95,16 +87,30 @@ assign : type ID '=' expr
 | '(' assign ')'
 ;
 
+//Various expressions.
+//Boolean expressions.
+bexpr : expr '==' expr 
+| expr RELOP expr
+| '!' bexpr 
+| bexpr '&&' bexpr
+| bexpr '||' bexpr
+| '(' bexpr ')'
+;
 
 for_expr : (expr|assign) ';' bexpr ';' assign ;
 
 expr : expr OP expr
 | '(' expr ')'
-| '-' expr
-| Number
+| '~' expr
+| INT
+| FLOAT
 | ID
 ; 
 
+//Basic symbols.
+RELOP : '<' | '>' | '<=' | '>=' | '!=' | '!>' | '!<' ;
+
+file : ID '.tt';
 
 type : 'int'
 | 'float'
@@ -117,16 +123,10 @@ type : 'int'
 String : '"' .*? '"'
 ;
 
-Number : INT | FLOAT ;
-
-UINT : Digit(UINT)? ;
-
-INT : UINT
-| '-' UINT
+//Matches longest pattern.
+INT : (Digit)+
 ;
-
-FLOAT : UINT '.' UINT
-| '-' FLOAT
+FLOAT : (Digit)+ '.' (Digit)+
 ;
 
 OP : '*'
@@ -140,6 +140,7 @@ Digit : [0-9] ;
 
 ID : [A-Za-z]([0-9A-Za-z])* ;
 
+//Commens and whitespace.
 WS : [ \t\r\n] -> skip;
 
 COMMENT : '/*' .*? '*/' -> skip;
