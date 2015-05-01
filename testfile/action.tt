@@ -1,10 +1,6 @@
-register start main;
-
-event meow;
+register start main 1;
 
 dir start {
-	register start meow;
-	emit meow;
 	bro;
 }
 

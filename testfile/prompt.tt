@@ -1,7 +1,8 @@
-register start main;
+register start main 1;
 
 dir start {
-	string input;
-	print "Please input something and I will mirror them:";
-	prompt input;
+    string input;
+    print "Please input something and I will mirror them:";
+    prompt input;
+    print input;
 }	

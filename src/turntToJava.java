@@ -74,7 +74,7 @@ public class turntToJava extends turntTestBaseListener {
 
 		/* Create Event.java */ 
 		String event = /*package turnt;*/"\n\nimport java.util."
-			+ "ArrayList;\n\npublic class Event {"
+			+ "*;\n\npublic class Event {"
 			+ "\n\tprivate ArrayList<Directive> "
 			+ "registeredDirectives;\n\n\tpublic Event() "
 			+ " {\n\t\tregisteredDirectives = new "
@@ -91,14 +91,16 @@ public class turntToJava extends turntTestBaseListener {
 
 		/* Creates Actions.java */
 		File action_file = new File("Actions.java");
-		writeToFile("public class Actions {\n", action_file, false);
+		writeToFile("import java.util.*;\n\npublic class Actions {\n", 
+			action_file, false);
 	}
 
 
 	@Override
 	public void exitPrgm(turntTestParser.PrgmContext ctx) {
 		/* Create Main.java */
-		String main = /*package turnt;*/ "\n\npublic class Main "
+		String main = /*package turnt;*/ "\n\nimport java.util.*;"
+			+ "\n\npublic class Main "
 			+"{\n\tpublic static void main(String[] args) "
 			+ "{\n\t\tEngine engine = new Engine();\n\t\t";
 
@@ -357,6 +359,26 @@ public class turntToJava extends turntTestBaseListener {
 			writeToFile("System.out.println(" + ctx.getChild(1)
 					+ ");\n", currentFile, true);
 		}    
+	}
+
+	/*
+		PROMPT: write user input to identifer
+	*/
+	@Override
+	public void enterPrompt(turntTestParser.PromptContext ctx) {
+		String ID = ctx.ID().getText();
+
+		// write to current file
+		String scanner = "\nScanner in = new Scanner(System.in);";
+		String prompt = "\nif(" + ID + " instanceof Integer) {" + 
+						"\n" + ID + " = in.nextInt(); }" + 
+						"\nelse if(" + ID + " instanceof Double) {" + 
+						"\n" + ID + " = in.nextDouble(); }" + 
+						"\nelse {" + 
+						"\n" + ID + " = in.nextLine(); }";
+
+		writeToFile(scanner, currentFile, true);
+		writeToFile(prompt, currentFile, true);
 	}
 
 	//TODO: Must make state into an expr.
