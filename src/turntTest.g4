@@ -38,11 +38,13 @@ block : for_blk
 //Flow control constructs.
 for_blk : 'for' '(' for_expr ')' '{' blocks '}';
 
-while_blk : 'while' '(' bexpr ')' '{' blocks '}';
+while_blk : 'while' conditional blocks '}';
 
-if_blk: 'if''(' bexpr ')' '{' blocks '}'
-| 'if' '(' bexpr ')' '{' blocks '}' 'else' '{' blocks '}'
+if_blk: 'if' conditional blocks '}'
+| 'if' conditional blocks '}' 'else' '{' blocks '}'
 ;
+
+conditional : '(' bexpr ')' '{' ;
 
 //Line statements are single line commands.
 line : prompt
@@ -52,15 +54,16 @@ line : prompt
 | emit
 | import_stmt
 | action_stmt
-| assign ';'
+| declare_line
+| assign_line
 ;
 
 //Line statements.
 prompt : 'prompt' ID ';';
 
-print : 'print' String ';'
-| 'print' stateGet ';'
-| 'print' expr ';'
+print : 'print' String ';'  # STRING_PRINT
+| 'print' stateGet ';'      # STATE_PRINT
+| 'print' expr ';'          # EXPR_PRINT
 ;
 
 state :  stateNew
@@ -82,30 +85,45 @@ action_stmt : 'action' ID ';'
 | ID ';'
 ;
 
-assign : type ID '=' expr
-| ID '=' expr
-| '(' assign ')'
+declare_line : declare ';' ;
+
+declare : type ID ;
+
+assign_line : assign ';' ;
+
+assign : declare '=' rexpr  # DEC_ASSIGN
+| ID '=' rexpr              # ID_ASSIGN
+| '(' assign ')'            # P_ASSIGN
 ;
 
 //Various expressions.
 //Boolean expressions.
-bexpr : expr '==' expr 
-| expr RELOP expr
-| '!' bexpr 
-| bexpr '&&' bexpr
-| bexpr '||' bexpr
-| '(' bexpr ')'
+bexpr : expr '==' rexpr     # REL_BEXPR
+| expr RELOP rexpr          # REL_BEXPR
+| '!' rbexpr                # N_BEXPR
+| bexpr '&&' rbexpr         # L_BEXPR
+| bexpr '||' rbexpr         # L_BEXPR
+| '(' bexpr ')'             # P_BEXPR
 ;
 
-for_expr : (expr|assign) ';' bexpr ';' assign ;
+rbexpr : bexpr ;
 
-expr : expr OP expr
-| '(' expr ')'
-| '~' expr
-| INT
-| FLOAT
-| ID
+
+for_expr : for_init for_condition assign ;
+
+for_init : (expr|assign) ';' ;
+
+for_condition : bexpr ';' ;
+
+expr : '(' expr ')' # P_EXPR
+| '~' expr          # NEG_EXPR
+| expr OP rexpr     # OP_EXPR
+| INT               # TERM_EXPR
+| FLOAT             # TERM_EXPR
+| ID                # TERM_EXPR
 ; 
+
+rexpr : expr;
 
 //Basic symbols.
 RELOP : '<' | '>' | '<=' | '>=' | '!=' | '!>' | '!<' ;
