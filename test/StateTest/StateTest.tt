@@ -1,0 +1,21 @@
+register makeHello main 1;
+
+event change;
+
+dir makeHello {
+	state int hello 5;
+	print hello;
+	register changeHello change 1;
+	register printHello change 2;
+	emit change;
+}
+
+dir changeHello {
+	state hello;
+	state hello 22;
+}
+
+dir printHello {
+	state hello;
+	print hello;
+}

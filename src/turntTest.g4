@@ -71,9 +71,17 @@ state :  stateNew
 | stateSet
 ;
 
-stateNew : 'state' type ID String ';';
+stateNew : 'state' type ID String ';'
+| 'state' type ID INT ';'
+| 'state' type ID FLOAT ';'
+| 'state' type ID BOOL ';'
+;
 stateGet : 'state' ID ';';
-stateSet : 'state' ID String ';';
+stateSet : 'state' ID String ';'
+| 'state' ID INT ';'
+| 'state' ID FLOAT ';'
+| 'state' ID BOOL ';'
+;
 
 emit : 'emit' ID 'in' ID ';'
 | 'emit' ID ';'
@@ -145,6 +153,10 @@ String : '"' .*? '"'
 INT : (Digit)+
 ;
 FLOAT : (Digit)+ '.' (Digit)+
+;
+
+BOOL: 'true'
+| 'false'
 ;
 
 OP : '*'

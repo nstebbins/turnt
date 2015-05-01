@@ -9,6 +9,7 @@ public class turntToJava extends turntTestBaseListener {
 	private boolean hasMain = false;
 	private HashMap<String, ArrayList<DirectiveTuple>> events;
 	private ArrayList<String> directiveList;
+	private HashMap<String, String> symbolTable;
 	private File currentFile;
 
 
@@ -17,6 +18,7 @@ public class turntToJava extends turntTestBaseListener {
 		super();
 		events = new HashMap<String, ArrayList<DirectiveTuple>>();
 		directiveList = new ArrayList<String>();
+		symbolTable = new HashMap<String, String>();
 	}
 
 
@@ -24,17 +26,23 @@ public class turntToJava extends turntTestBaseListener {
 	@Override
 	public void enterPrgm(turntTestParser.PrgmContext ctx) {
 		/* Create State.java */
-		String state = /*package turnt;*/ "\n\nimport"
-			+ " java.util.HashMap; \n\npublic class "
-			+ "State {\n\tprivate static HashMap<String, "
-			+ "Object> state = new HashMap<String, Object>(); "
-			+ "\n\n\tpublic static void changeState(String "
-			+ "name, Object toAdd) {\n\t\tstate.put(name,"
-			+ "toAdd); \n\t} \n\n\tpublic static void " 
-			+ "removeState(String name) { \n\t\tstate.remove"
-			+ "(name); \n\t} \n\n\tpublic static Object "
-			+ "getState(String name) { \n\t\treturn state."
-			+ "get(name);\n\t}\n}\n";
+		String state = /*package turnt;*/ 
+			"\n\nimport java.util.HashMap;\n\n"
+			+ "public class State {\n"
+			+ "\tprivate static HashMap<String, "
+			+ "Object> state = new HashMap<String, Object>();\n\n"
+			+ "\tpublic static Object changeState(String "
+			+ "name, Object toAdd) {\n"
+			+ "\t\tstate.put(name, toAdd);\n"
+			+ "\t\treturn toAdd;\n"
+			+ "\t}\n\n"
+			+ "\tpublic static void removeState(String name) {\n"
+			+ "\t\tstate.remove(name);\n"
+			+ "\t}\n\n"
+			+ "\tpublic static Object getState(String name) {\n"
+			+ "\t\treturn state.get(name);\n"
+			+ "\t}\n"
+			+ "}\n";
 
 		File state_file = new File("State.java");
 		writeToFile(state, state_file, false);
@@ -401,19 +409,37 @@ public class turntToJava extends turntTestBaseListener {
 	//TODO: Must make state into an expr.
 	@Override
 	public void enterStateNew(turntTestParser.StateNewContext ctx) {
-		writeToFile("State.changeState(" + ctx.getChild(2)
-				+ ", " + ctx.getChild(3) + ");\n", currentFile, true);
+		String id = ctx.getChild(2).getText();
+		String type = ctx.getChild(1).getText();
+		symbolTable.put(id, type);
+		writeToFile(mapVars(type) + " " + id + " =  (" + mapVars(type) + ") State.changeState(\"" + id
+				+ "\", (Object) new ",
+				currentFile, true);
 	}
+
+	@Override
+	public void exitStateNew(turntTestParser.StateNewContext ctx) {
+		writeToFile("(\"" + ctx.getChild(3) + "\"));\n",
+				currentFile, true);
+	}
+
 	@Override
 	public void enterStateGet(turntTestParser.StateGetContext ctx) {
-		writeToFile("State.getState(" + ctx.getChild(1) + ");\n",
+		String id = ctx.getChild(1).getText();
+		String type = symbolTable.get(id);
+		writeToFile(mapVars(type) + " " + id + " = ( " + mapVars(type)
+				+ ") (State.getState(\"" + id + "\"));\n",
 				currentFile, true);
 	}
 	@Override
 	public void enterStateSet(turntTestParser.StateSetContext ctx) {
-		writeToFile("State.changeState(" + ctx.getChild(1)
-				+ ", " + ctx.getChild(2) + ");\n", currentFile, true);
+		String id = ctx.getChild(1).getText();
+		String type = symbolTable.get(id);
+		writeToFile("State.changeState(\"" + ctx.getChild(1)
+				+ "\", (Object) " + ctx.getChild(2) + ");\n", currentFile, true);
 	}
+
+	//Emit
 	@Override
 	public void enterEmit(turntTestParser.EmitContext ctx) {
 		writeToFile("Engine.emitEvent(\"" + ctx.getChild(1) + "Event\");\n",
@@ -436,6 +462,19 @@ public class turntToJava extends turntTestBaseListener {
 			} catch (IOException e) {
 			}
 		}
+	}
+
+	private String mapVars(String input) {
+		if (input.equals("int")) {
+			return "Integer";
+		} else if (input.equals("float")) {
+			return "Double";
+		} else if (input.equals("bool")) {
+			return "Boolean";
+		} else if (input.equals("String")) {
+			return "String";
+		}
+		return "String";
 	}
 
 	@Override
