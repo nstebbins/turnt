@@ -3,6 +3,7 @@ register start main 1;
 dir start {
     String input;
     print "input: ";
+    
     prompt input;
     print input;
 }	

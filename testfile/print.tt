@@ -1,8 +1,5 @@
 register start main 1;
 
-event meow;
 dir start {
-	print "Hello World";
-	register start meow 2;
-	emit meow;
+	print "hello";
 }

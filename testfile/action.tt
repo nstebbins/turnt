@@ -5,5 +5,5 @@ dir start {
 }
 
 action bro {
-	print "bro.";
+	print "hello";
 }

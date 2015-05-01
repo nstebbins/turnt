@@ -87,7 +87,7 @@ action_stmt : 'action' ID ';'
 
 declare_line : declare ';' ;
 
-declare : type ID ;
+declare : type ID;
 
 assign_line : assign ';' ;
 

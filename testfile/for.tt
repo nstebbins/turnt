@@ -1,10 +1,7 @@
-register forTest main 0;
+register start main 0;
 
-dir forTest{
-	int i;
-	for (i = 0; i < 10; i = i + 1) {
-		//Unsure whether to use integer as input parameter for print
-		print i;
-	}
+dir start {
+    for(int i = 0; i < 5; i = i + 1) {
+        print i ;
+    }
 }
-
