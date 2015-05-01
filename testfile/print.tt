@@ -1,5 +1,0 @@
-register start main 1;
-
-dir start {
-	print "hello";
-}

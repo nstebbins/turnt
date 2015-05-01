@@ -1,6 +1,7 @@
 #!/bin/sh
 grammar=$1
-test=../testfile/$2
+dir="$2Test/$2Test.tt" # Jeff's test directory
+test=../test/$dir
 
 echo "Building Grammar and Running Translater"
 antlr4 $grammar.g4

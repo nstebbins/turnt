@@ -1,7 +1,7 @@
 register forTest main 1;
 
-dir forTest{
-	for (int i = 0 ; i < 10 ; i = 10 ) {
+dir forTest {
+	for (int i = 0 ; i < 10; i = 10) {
 		print "i";
 	}
 }
