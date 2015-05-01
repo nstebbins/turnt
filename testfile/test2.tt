@@ -1,4 +1,4 @@
-register start main;
+register start main 0;
 dir start {
     int i = 0;
     while ( i < 5 ) {

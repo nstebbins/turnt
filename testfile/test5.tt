@@ -1,4 +1,4 @@
-register start main;
+register start main 0;
 dir start {
     for (int i = 0 ; i < 5 ; i = i+1 ) {
         print i ;

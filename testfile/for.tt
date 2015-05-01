@@ -1,4 +1,4 @@
-register forTest main;
+register forTest main 0;
 
 dir forTest{
 	int i;

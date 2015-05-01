@@ -1,8 +1,8 @@
-register start main;
+register start main 0;
 event play;
 
 dir start {
-    register startTurn play ;
+    register startTurn play 0;
     emit play ;
 }
 

@@ -1,5 +1,5 @@
-register start main;
-register start2 main;
+register start main 0;
+register start2 main 0;
 
 dir start {
     print "Hello World!";
