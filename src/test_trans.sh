@@ -7,3 +7,4 @@ antlr4 $grammar.g4
 javac $grammar*.java
 javac Translate.java
 cat $test | java Translate
+javac Main.java 

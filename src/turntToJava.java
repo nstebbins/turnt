@@ -273,7 +273,8 @@ public class turntToJava extends turntTestBaseListener {
 		String ID = ctx.ID().getText();
 		directiveList.add(ID + "Directive");
 		String dir = /*package turnt;*/ 
-			"\n\npublic class " + ID + "Directive extends Directive {\n"
+			"\nimport java.util.*;"
+			+ "\n\npublic class " + ID + "Directive extends Directive {\n"
 			+ "\tpublic " + ID + "Directive() {\n"
 			+ "\t\tsuper();\n"
 			+ "\t}\n\n"

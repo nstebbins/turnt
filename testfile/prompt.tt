@@ -1,8 +1,8 @@
 register start main 1;
 
 dir start {
-    string input;
-    print "Please input something and I will mirror them:";
+    String input;
+    print "input: ";
     prompt input;
     print input;
 }	
