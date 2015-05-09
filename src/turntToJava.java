@@ -12,6 +12,9 @@ public class turntToJava extends turntTestBaseListener {
 	private HashMap<String, String> symbolTable;
 	private File currentFile;
 
+	private int curr_list_pos;
+	private int curr_list_size;
+	private boolean is_array;
 
 	/** Constructor */
 	public turntToJava(){
@@ -19,6 +22,10 @@ public class turntToJava extends turntTestBaseListener {
 		events = new HashMap<String, ArrayList<DirectiveTuple>>();
 		directiveList = new ArrayList<String>();
 		symbolTable = new HashMap<String, String>();
+
+		is_array = false;
+		curr_list_pos = 0;
+		curr_list_size = 0;
 	}
 
 
@@ -796,6 +803,10 @@ public class turntToJava extends turntTestBaseListener {
 
     @Override
     public void enterARRAY_EXPR(turntTestParser.ARRAY_EXPRContext ctx) {
+        System.out.println("ARRAY_EXPR: " + ctx.getText());
+        curr_list_size = ctx.getText().split(",").length;
+        is_array = true;
+        System.out.println("size of array: " + curr_list_size);
         writeToFile("{", currentFile, true);
     }
 
@@ -815,8 +826,15 @@ public class turntToJava extends turntTestBaseListener {
 
 	@Override
     public void enterTERM_EXPR(turntTestParser.TERM_EXPRContext ctx) {
-        System.out.println("TERM_EXPR: " + ctx.getText());
-        writeToFile(ctx.getText(), currentFile, true);
+        if(is_array && curr_list_pos < curr_list_size - 1) {
+        	writeToFile(ctx.getText() + ", ", currentFile, true);
+        	curr_list_pos++;
+        }
+        else {
+        	// last element
+        	writeToFile(ctx.getText(), currentFile, true);
+        	is_array = false; curr_list_pos = 0; curr_list_size = 0; // reset
+        }
     }
 
 	@Override
