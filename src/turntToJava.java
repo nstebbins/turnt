@@ -739,6 +739,18 @@ public class turntToJava extends turntTestBaseListener {
     }
 
     @Override
+    public void enterELEM_EXPR(turntTestParser.ELEM_EXPRContext ctx) {
+        String [] stuff = ctx.getText().split("\\[|\\]");
+        String elem_access = stuff[0] + ".get(" + stuff[1] + ");"; 
+        writeToFile(elem_access, currentFile, true);
+    }
+
+    @Override
+    public void exitELEM_EXPR(turntTestParser.ELEM_EXPRContext ctx) {
+    	// ...
+    }
+
+    @Override
     public void enterP_ASSIGN(turntTestParser.P_ASSIGNContext ctx) {
         writeToFile("(", currentFile, true);
     }

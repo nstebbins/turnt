@@ -128,6 +128,7 @@ expr : '(' expr ')' 			# P_EXPR
 | INT               			# TERM_EXPR
 | FLOAT             			# TERM_EXPR
 | ID                			# TERM_EXPR
+| ID '[' INT ']'				# ELEM_EXPR
 | '{' expr (',' expr)* '}' 		# ARRAY_EXPR
 ; 
 
