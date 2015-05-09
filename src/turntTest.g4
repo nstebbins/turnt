@@ -22,7 +22,9 @@ registerMain : 'register' ID 'main' INT ';';
 
 register : 'register' ID ID INT ';';
 
-event : 'event' ID ';';
+event : 'event' ID '{' blocks '}'	 	# AE_EVENT
+| 'event' ID ';'						# NAE_EVENT
+;
 
 //Blocks exist between the braces of actions and directives.
 //Blocks consist of any number of block.
@@ -52,6 +54,7 @@ line : prompt
 | register
 | state
 | emit
+| emitOn
 | import_stmt
 | action_stmt
 | declare_line
@@ -87,6 +90,8 @@ emit : 'emit' ID 'in' ID ';'
 | 'emit' ID ';'
 ;
 
+emitOn : 'emitOn' bexpr ';';
+
 import_stmt : 'module' ID '=' 'import' file ';';
 
 action_stmt : 'action' ID ';'
@@ -106,13 +111,17 @@ assign : declare '=' rexpr  # DEC_ASSIGN
 
 //Various expressions.
 //Boolean expressions.
-bexpr : expr '==' rexpr     # REL_BEXPR
+bexpr : expr '==' eqlsexpr  # EQ_BEXPR
+| expr '!=' eqlsexpr		# NE_BEXPR
 | expr RELOP rexpr          # REL_BEXPR
 | '!' rbexpr                # N_BEXPR
 | bexpr '&&' rbexpr         # L_BEXPR
 | bexpr '||' rbexpr         # L_BEXPR
 | '(' bexpr ')'             # P_BEXPR
 ;
+
+eqlsexpr : expr ;
+neqlexpr : expr ;
 
 rbexpr : bexpr ;
 
@@ -135,7 +144,7 @@ expr : '(' expr ')' 			# P_EXPR
 rexpr : expr;
 
 //Basic symbols.
-RELOP : '<' | '>' | '<=' | '>=' | '!=' | '!>' | '!<' ;
+RELOP : '<' | '>' | '<=' | '>=' | '!>' | '!<' ;
 
 file : ID '.tt';
 
