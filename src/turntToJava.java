@@ -12,9 +12,8 @@ public class turntToJava extends turntTestBaseListener {
 	private HashMap<String, String> symbolTable;
 	private File currentFile;
 
-	private int curr_list_pos;
-	private int curr_list_size;
-	private boolean is_array;
+	private String curr_array_name;
+	private int curr_list_pos, curr_list_size;
 
 	/** Constructor */
 	public turntToJava(){
@@ -23,8 +22,8 @@ public class turntToJava extends turntTestBaseListener {
 		directiveList = new ArrayList<String>();
 		symbolTable = new HashMap<String, String>();
 
-		is_array = false;
-		curr_list_pos = 0;
+		curr_array_name = "";
+		curr_list_pos = 0; 
 		curr_list_size = 0;
 	}
 
@@ -717,6 +716,7 @@ public class turntToJava extends turntTestBaseListener {
     @Override
     public void exitDeclare(turntTestParser.DeclareContext ctx) {
         String id = ctx.getChild(1).getText();
+        id = !curr_array_name.isEmpty() ? "" : id;
         writeToFile(id, currentFile, true);
     }
 
@@ -727,12 +727,14 @@ public class turntToJava extends turntTestBaseListener {
 
     @Override
     public void exitAssign_line(turntTestParser.Assign_lineContext ctx) {
-        writeToFile(";\n", currentFile, true);
+        String toPrint = !curr_array_name.isEmpty() ? "\n" : ";\n";
+        writeToFile(toPrint, currentFile, true);
+        curr_array_name = ""; curr_list_pos = 0; curr_list_size = 0; // reset
     }
 
     @Override
     public void enterID_ASSIGN(turntTestParser.ID_ASSIGNContext ctx) {
-        String id = ctx.getChild(0).getText();
+    	String id = ctx.getChild(0).getText();
         writeToFile(id, currentFile, true);
     }
 
@@ -781,11 +783,14 @@ public class turntToJava extends turntTestBaseListener {
 		else if(type.equals("String")){
 			s = "String ";
 		}
-		else if(type.equals("list int")){
-			s = "int [] ";
-		}
-		else if(type.equals("list float")){
-			s = "double [] ";
+		else if(type.contains("list")) {
+			curr_array_name = ID; curr_list_pos = 0;
+			if(type.equals("list int")) {
+				s = "ArrayList<Integer> " + ID + " = new ArrayList<Integer>();\n";
+			}
+			else if(type.equals("list float")) {
+				s = "ArrayList<Double> " + ID + " = new ArrayList<Double>();\n";
+			}
 		}
 
 		//String s = ctx.getChild(0).getText() + " "; 
@@ -805,13 +810,12 @@ public class turntToJava extends turntTestBaseListener {
     public void enterARRAY_EXPR(turntTestParser.ARRAY_EXPRContext ctx) {
         System.out.println("ARRAY_EXPR: " + ctx.getText());
         curr_list_size = ctx.getText().split(",").length;
-        is_array = true;
         System.out.println("size of array: " + curr_list_size);
-        writeToFile("{", currentFile, true);
+        // writeToFile("{", currentFile, true);
     }
 
     public void exitARRAY_EXPR(turntTestParser.ARRAY_EXPRContext ctx) {
-        writeToFile("}", currentFile, true);
+        // writeToFile("}", currentFile, true);
     }
 
 	@Override
@@ -826,20 +830,26 @@ public class turntToJava extends turntTestBaseListener {
 
 	@Override
     public void enterTERM_EXPR(turntTestParser.TERM_EXPRContext ctx) {
-        if(is_array && curr_list_pos < curr_list_size - 1) {
-        	writeToFile(ctx.getText() + ", ", currentFile, true);
-        	curr_list_pos++;
-        }
-        else {
-        	// last element
-        	writeToFile(ctx.getText(), currentFile, true);
-        	is_array = false; curr_list_pos = 0; curr_list_size = 0; // reset
-        }
+        
+    	System.out.println("TERM_EXPR: " + ctx.getText() + 
+    		", pos: " + curr_list_pos + ", size: " + curr_list_size + 
+    		", array name: " + curr_array_name);
+
+    	if(!curr_array_name.isEmpty() && curr_list_pos <= curr_list_size - 1) {
+    		writeToFile(curr_array_name + ".add(" + ctx.getText() + ");\n", currentFile, true);
+    		curr_list_pos++;
+    	}
+    	else {
+    		// last array element or something else
+    		writeToFile(ctx.getText(), currentFile, true);
+    	}
+        
     }
 
 	@Override
     public void enterRexpr(turntTestParser.RexprContext ctx) {
         String op = ctx.getParent().getChild(1).getText();
+        op = !curr_array_name.isEmpty() ? "" : op;
         writeToFile(" " + op + " ", currentFile, true);
     }
 }

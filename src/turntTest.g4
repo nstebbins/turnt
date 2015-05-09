@@ -116,7 +116,6 @@ bexpr : expr '==' rexpr     # REL_BEXPR
 
 rbexpr : bexpr ;
 
-
 for_expr : for_init for_condition assign ;
 
 for_init : (expr|assign) ';' ;
