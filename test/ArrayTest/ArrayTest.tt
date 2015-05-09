@@ -1,0 +1,6 @@
+register start main 1;
+
+dir start {
+	list int mylist = {1, 2, 3, 4};
+	list float mylist2 = {1, 2.4, 3.7, 4};
+}

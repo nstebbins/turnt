@@ -123,12 +123,13 @@ for_init : (expr|assign) ';' ;
 
 for_condition : bexpr ';' ;
 
-expr : '(' expr ')' # P_EXPR
-| '~' expr          # NEG_EXPR
-| expr OP rexpr     # OP_EXPR
-| INT               # TERM_EXPR
-| FLOAT             # TERM_EXPR
-| ID                # TERM_EXPR
+expr : '(' expr ')' 			# P_EXPR
+| '~' expr          			# NEG_EXPR
+| expr OP rexpr     			# OP_EXPR
+| INT               			# TERM_EXPR
+| FLOAT             			# TERM_EXPR
+| ID                			# TERM_EXPR
+| '{' expr (',' expr)* '}' 		# ARRAY_EXPR
 ; 
 
 rexpr : expr;
@@ -143,7 +144,11 @@ type : 'int'
 | 'bool'
 | 'char'
 | 'String'
-| 'list'
+| list_type
+;
+
+list_type : 'list int'
+| 'list float'
 ;
 
 String : '"' .*? '"'

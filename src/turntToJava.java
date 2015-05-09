@@ -744,7 +744,7 @@ public class turntToJava extends turntTestBaseListener {
 		String s = null;
 
 		int childNum = ctx.getParent().getChildCount();
-		String sample = "intfloatboolcharStringlist";
+		String sample = "intfloatboolcharString" + "list int" + "list float";
 
 		int index;
 		for(index=0; index<childNum; index++){
@@ -754,8 +754,11 @@ public class turntToJava extends turntTestBaseListener {
 			} 
 		}
 
-		String ID = ctx.getParent().getChild(index+1).getText();
 		String type = ctx.getText();
+		System.out.println("type: " + type);
+
+		String ID = ctx.getParent().getChild(index+1).getText();
+		System.out.println("ID: " + ID);
 		if(type.equals("int")){
 			s = "Integer ";
 		}
@@ -771,8 +774,11 @@ public class turntToJava extends turntTestBaseListener {
 		else if(type.equals("String")){
 			s = "String ";
 		}
-		else if(type.equals("List")){
-			s = "List ";
+		else if(type.equals("list int")){
+			s = "int [] ";
+		}
+		else if(type.equals("list float")){
+			s = "double [] ";
 		}
 
 		//String s = ctx.getChild(0).getText() + " "; 
@@ -788,6 +794,15 @@ public class turntToJava extends turntTestBaseListener {
         writeToFile(")", currentFile, true);
     }
 
+    @Override
+    public void enterARRAY_EXPR(turntTestParser.ARRAY_EXPRContext ctx) {
+        writeToFile("{", currentFile, true);
+    }
+
+    public void exitARRAY_EXPR(turntTestParser.ARRAY_EXPRContext ctx) {
+        writeToFile("}", currentFile, true);
+    }
+
 	@Override
     public void enterNEG_EXPR(turntTestParser.NEG_EXPRContext ctx) {
         writeToFile("-(", currentFile, true);
@@ -800,6 +815,7 @@ public class turntToJava extends turntTestBaseListener {
 
 	@Override
     public void enterTERM_EXPR(turntTestParser.TERM_EXPRContext ctx) {
+        System.out.println("TERM_EXPR: " + ctx.getText());
         writeToFile(ctx.getText(), currentFile, true);
     }
 
