@@ -764,10 +764,8 @@ public class turntToJava extends turntTestBaseListener {
 		}
 
 		String type = ctx.getText();
-		System.out.println("type: " + type);
 
 		String ID = ctx.getParent().getChild(index+1).getText();
-		System.out.println("ID: " + ID);
 		if(type.equals("int")){
 			s = "Integer ";
 		}
@@ -808,9 +806,7 @@ public class turntToJava extends turntTestBaseListener {
 
     @Override
     public void enterARRAY_EXPR(turntTestParser.ARRAY_EXPRContext ctx) {
-        System.out.println("ARRAY_EXPR: " + ctx.getText());
         curr_list_size = ctx.getText().split(",").length;
-        System.out.println("size of array: " + curr_list_size);
         // writeToFile("{", currentFile, true);
     }
 
@@ -831,10 +827,6 @@ public class turntToJava extends turntTestBaseListener {
 	@Override
     public void enterTERM_EXPR(turntTestParser.TERM_EXPRContext ctx) {
         
-    	System.out.println("TERM_EXPR: " + ctx.getText() + 
-    		", pos: " + curr_list_pos + ", size: " + curr_list_size + 
-    		", array name: " + curr_array_name);
-
     	if(!curr_array_name.isEmpty() && curr_list_pos <= curr_list_size - 1) {
     		writeToFile(curr_array_name + ".add(" + ctx.getText() + ");\n", currentFile, true);
     		curr_list_pos++;
