@@ -55,7 +55,7 @@ public class turntToJava extends turntTestBaseListener {
 
 		/* Create Directive.java */
 		String dir = /*package turnt;*/ 
-			"\n\npublic class Directive implements Comparable<Directive> {\n"
+			"\n\npublic abstract class Directive implements Comparable<Directive> {\n"
 			+ "\tprivate int priority = 0;\n\n"
 			+ "\tpublic Directive() {\n"
 			+ "\t\tthis(0);\n"
@@ -88,17 +88,24 @@ public class turntToJava extends turntTestBaseListener {
 
 		/* Create Event.java */ 
 		String event = /*package turnt;*/"\n\nimport java.util."
-			+ "*;\n\npublic class Event {"
+			+ "*;\n\npublic abstract class Event {\n"
+			+ "\tpublic String name;"
 			+ "\n\tprivate ArrayList<Directive> "
-			+ "registeredDirectives;\n\n\tpublic Event() "
-			+ " {\n\t\tregisteredDirectives = new "
-			+ "ArrayList<Directive>();\n\t}\n\n\tpublic"
-			+ " ArrayList<Directive> evt() {\n\t\treturn"
-			+ " registered"
-			+ "Directives; \n\t} \n\n\tpublic void "
-			+ "register(Directive directive) { "
-			+ "\n\t\tregisteredDirectives.add(directive);"
-			+ "\n\t}\n}\n";
+			+ "registeredDirectives;\n\n"
+			+ "\tpublic Event() {\n"
+			+ "\t\tregisteredDirectives = new ArrayList<Directive>();\n"
+			+ "\t}\n\n"
+			+ "\tpublic ArrayList<Directive> evt() {\n"
+			+ "\t\treturn registeredDirectives;\n"
+			+ "\t}\n\n"
+			+ "\tpublic void register(Directive directive) {\n"
+			+ "\t\tregisteredDirectives.add(directive);\n"
+			+ "\t}\n\n"
+			+ "\tpublic boolean checkCondition() {\n"
+			+ "\t\treturn false;\n"
+			+ "\t}\n\n"
+			+ "\tpublic String getName() {return \"\";}\n"
+			+ "}\n";
 
 		File event_file = new File("Event.java");
 		writeToFile(event, event_file, false);
@@ -120,8 +127,12 @@ public class turntToJava extends turntTestBaseListener {
 
 		if (hasMain) { 
 			main = main + "engine.emitEvent(\"MainEvent\");\n\t"
-				+ "\twhile(engine.hasNext()) {\n\t\t\tengine.pop()."
-				+ "dir();\n\t\t}\n\t}\n}\n";
+				+ "\twhile(engine.hasNext()) {\n"
+				+ "\t\t\tengine.pop().dir();\n"
+				+ "\t\t\tengine.autoEmit();\n"
+				+ "\t\t}\n"
+				+ "\t}\n"
+				+ "}\n";
 		}
 		else{
 			main = main + "\n\t\twhile(engine.hasNext()) {"
@@ -134,14 +145,15 @@ public class turntToJava extends turntTestBaseListener {
 		writeToFile(main, main_file, false);
 
 		/* Create Engine.java */
-		String engine = /*package turnt;*/ "\n\nimport java.util."
-			+ "HashMap; \nimport java.util.PriorityQueue;"
-			+ " \n\npublic class Engine { \n\tprivate "
-			+ "static PriorityQueue<Directive> directiveQueue; "
-			+ "\n\tprivate static HashMap<String, Event> "
-			+ "eventMap;\n\tprivate static HashMap<String, "
-			+ "Directive> directiveMap;\n\n\t";
+		String engine = /*package turnt;*/ 
+			"\n\nimport java.util.HashMap;\n"
+			+ "import java.util.PriorityQueue;\n\n"
+			+ "public class Engine {\n"
+			+ "\tprivate static PriorityQueue<Directive> directiveQueue;\n"
+			+ "\tprivate static HashMap<String, Event> eventMap;\n"
+			+ "\tprivate static HashMap<String, Directive> directiveMap;\n\n\t";
 
+		//Constructor
 		if (hasMain) {
 			engine = engine + "public Engine() {\n\t\t"
 				+ "directiveQueue = new PriorityQueue<Directive>();\n\t\t"
@@ -188,8 +200,16 @@ public class turntToJava extends turntTestBaseListener {
 			+ "\n\n\tpublic static void createDirective("
 			+ "String name, Directive dir) {"
 			+ "\n\t\tdirectiveMap.put(name, dir);"
-			+ "\n\t}"
-			+ "\n}\n";
+			+ "\n\t}\n\n"
+			+ "\tpublic static void autoEmit() {\n"
+			+ "\t\tSystem.out.printf(\"\");\n"
+			+ "\t\tfor (Event evt : eventMap.values()) {\n"
+			+ "\t\t\tif (evt.checkCondition()) {\n"
+			+ "\t\t\t\temitEvent(evt.getName());\n"
+			+ "\t\t\t}\n"
+			+ "\t\t}\n"
+			+ "\t}\n"
+			+ "}\n";
 
 		File engine_file = new File("Engine.java");
 		writeToFile(engine, engine_file, false);
@@ -199,11 +219,16 @@ public class turntToJava extends turntTestBaseListener {
 		Iterator eventIter = eventSet.iterator();
 		//Create each event.
 		while(eventIter.hasNext()) {
-			String eventID = eventIter.next().toString(); //test this
+			String eventID = eventIter.next().toString();
 			ArrayList<DirectiveTuple> dirs = events.get(eventID);   
-			String event = /*package turnt;*/
-				"\n\npublic class " + eventID + " extends Event {"
-				+ "\n\tpublic " + eventID + "() {";
+			String event = "\tpublic " + eventID + "() {\n"
+					+ "\t\tname = \"" + eventID + "\";";
+			if (eventID.equals("mainEvent")) {
+				event = "public class mainEvent extends Event {\n"
+					+ "\tpublic boolean checkCondition() {return false;}\n"
+				    + "\tpublic String name;\n"
+			   	    + event;
+			}
 			//Add directives registered to event on top level.
 			Iterator<DirectiveTuple> dirIter = dirs.iterator();
 			while(dirIter.hasNext()){
@@ -213,10 +238,13 @@ public class turntToJava extends turntTestBaseListener {
 					+ directive + "(" + String.valueOf(tup.priority) + "));";
 			}
 
-			event = event + "\n\t} \n}";
+			event = event + "\n\t}\n\n"
+					+ "\tpublic String getName() {return name;}\n"
+					+ "}";
 
 			File event_file = new File(eventID+".java");
-			writeToFile(event, event_file, false);
+			boolean isMainEvent = eventID.equals("mainEvent");
+			writeToFile(event, event_file, !isMainEvent);
 		}
 
 		/* add closing brace */
@@ -344,12 +372,54 @@ public class turntToJava extends turntTestBaseListener {
 
 	//TODO: error if no event for register event.
 	@Override
-	public void enterEvent(turntTestParser.EventContext ctx) {
+	public void enterAE_EVENT(turntTestParser.AE_EVENTContext ctx) {
 		String ID = ctx.ID().getText();
+		currentFile = new File(ID + "Event.java");
+		writeToFile("\n\npublic class " + ID + "Event extends Event {\n"
+				+ "\tprivate String name;\n"
+				+ "\tpublic boolean checkCondition() {\n",
+				currentFile, false);
+		//Add to events storage.
 		if (!events.containsKey(ID + "Event")) {
 			ArrayList<DirectiveTuple> eventList = new ArrayList<DirectiveTuple>();
 			events.put(ID + "Event", eventList);
 		}
+	}
+
+	@Override
+	public void exitAE_EVENT(turntTestParser.AE_EVENTContext ctx) {
+		writeToFile("\n\t}\n\n", currentFile, true);
+		currentFile = null;
+	}
+	@Override
+	public void enterNAE_EVENT(turntTestParser.NAE_EVENTContext ctx) {
+		String ID = ctx.ID().getText();
+		currentFile = new File(ID + "Event.java");
+		// No auto-emit condition
+		writeToFile("\n\npublic class " + ID + "Event extends Event {\n"
+				+ "\tprivate String name;\n"
+				+ "\tpublic boolean checkCondition() { return false; }\n\n",
+				currentFile, false);
+		//Add to events storage.
+		if (!events.containsKey(ID + "Event")) {
+			ArrayList<DirectiveTuple> eventList = new ArrayList<DirectiveTuple>();
+			events.put(ID + "Event", eventList);
+		}
+	}
+
+	@Override
+	public void exitNAE_EVENT(turntTestParser.NAE_EVENTContext ctx) {
+		currentFile = null;
+	}
+
+	@Override
+	public void enterEmitOn(turntTestParser.EmitOnContext ctx) {
+		writeToFile("return ", currentFile, true);
+	}
+
+	@Override
+	public void exitEmitOn(turntTestParser.EmitOnContext ctx) {
+		writeToFile(";", currentFile, true);
 	}
 
     /*
@@ -433,8 +503,8 @@ public class turntToJava extends turntTestBaseListener {
 	public void enterStateGet(turntTestParser.StateGetContext ctx) {
 		String id = ctx.getChild(1).getText();
 		String type = symbolTable.get(id);
-		writeToFile(mapVars(type) + " " + id + " = ( " + mapVars(type)
-				+ ") (State.getState(\"" + id + "\"));\n",
+		writeToFile(mapVars(type) + " " + id + " = (" + mapVars(type)
+				+ ") State.getState(\"" + id + "\");\n",
 				currentFile, true);
 	}
 	@Override
@@ -672,6 +742,26 @@ public class turntToJava extends turntTestBaseListener {
         String op = ctx.getParent().getChild(1).getText();
         writeToFile(" " + op + " ", currentFile, true);
     }
+
+	@Override
+	public void enterEQ_BEXPR(turntTestParser.EQ_BEXPRContext ctx) {
+		writeToFile("(new Float(", currentFile, true);
+	}
+
+	@Override
+	public void enterNE_BEXPR(turntTestParser.NE_BEXPRContext ctx) {
+		writeToFile("!(new Float(", currentFile, true);
+	}
+
+	@Override
+	public void enterEqlsexpr(turntTestParser.EqlsexprContext ctx) {
+		writeToFile(")).equals(new Float(", currentFile, true);
+	}
+
+	@Override
+	public void exitEqlsexpr(turntTestParser.EqlsexprContext ctx) {
+		writeToFile("))", currentFile, true);
+	}
 
     @Override
     public void enterP_BEXPR(turntTestParser.P_BEXPRContext ctx) {
