@@ -753,6 +753,16 @@ public class turntToJava extends turntTestBaseListener {
 		writeToFile("!(new Float(", currentFile, true);
 	}
 
+    @Override
+	public void enterBEQ_BEXPR(turntTestParser.BEQ_BEXPRContext ctx) {
+		writeToFile("(new Boolean(", currentFile, true);
+	}
+
+	@Override
+	public void enterBNE_BEXPR(turntTestParser.BNE_BEXPRContext ctx) {
+		writeToFile("!(new Boolean(", currentFile, true);
+	}
+
 	@Override
 	public void enterEqlsexpr(turntTestParser.EqlsexprContext ctx) {
 		writeToFile(")).equals(new Float(", currentFile, true);
@@ -760,6 +770,16 @@ public class turntToJava extends turntTestBaseListener {
 
 	@Override
 	public void exitEqlsexpr(turntTestParser.EqlsexprContext ctx) {
+		writeToFile("))", currentFile, true);
+	}
+
+    @Override
+	public void enterEqlsbexpr(turntTestParser.EqlsbexprContext ctx) {
+		writeToFile(")).equals(new Boolean(", currentFile, true);
+	}
+
+	@Override
+	public void exitEqlsbexpr(turntTestParser.EqlsbexprContext ctx) {
 		writeToFile("))", currentFile, true);
 	}
 
@@ -772,6 +792,18 @@ public class turntToJava extends turntTestBaseListener {
     public void exitP_BEXPR(turntTestParser.P_BEXPRContext ctx) {
         writeToFile(")", currentFile, true);
     }
+
+    @Override
+	public void enterBOOL(turntTestParser.BOOLContext ctx){
+	    String bool = ctx.getText();
+		writeToFile(bool, currentFile, true);
+	}
+
+    @Override
+	public void enterID_BEXPR(turntTestParser.ID_BEXPRContext ctx){
+	    String id = ctx.getText();
+		writeToFile(id, currentFile, true);
+	}
 
     /*
 	@Override
@@ -824,6 +856,12 @@ public class turntToJava extends turntTestBaseListener {
 
     @Override
     public void enterID_ASSIGN(turntTestParser.ID_ASSIGNContext ctx) {
+    	String id = ctx.getChild(0).getText();
+        writeToFile(id, currentFile, true);
+    }
+
+    @Override
+    public void enterBID_ASSIGN(turntTestParser.BID_ASSIGNContext ctx) {
     	String id = ctx.getChild(0).getText();
         writeToFile(id, currentFile, true);
     }
@@ -946,4 +984,6 @@ public class turntToJava extends turntTestBaseListener {
         op = !curr_array_name.isEmpty() ? "" : op;
         writeToFile(" " + op + " ", currentFile, true);
     }
+
+      
 }
