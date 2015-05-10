@@ -418,6 +418,11 @@ public class translateToJava extends turntBaseListener {
 	}
 
     @Override
+    public void enterExit(turntParser.ExitContext ctx) {
+        writeToFile("System.exit(0);", currentFile, true);
+    }
+
+    @Override
     public void enterSTRING_PRINT(turntParser.STRING_PRINTContext ctx) {
         String toPrint = ctx.getChild(1).getText();
         writeToFile("System.out.println(" + toPrint + ");\n", currentFile, true);
@@ -590,9 +595,24 @@ public class translateToJava extends turntBaseListener {
 	}
 
     @Override
+    public void enterElse_blk(turntParser.Else_blkContext ctx) {
+        writeToFile("} else {", currentFile, true);
+    }
+
+    @Override
     public void enterRbexpr(turntParser.RbexprContext ctx) {
         String op = ctx.getParent().getChild(1).getText();
         writeToFile(" " + op + " ", currentFile, true);
+    }
+
+    @Override
+    public void enterN_BEXPR(turntParser.N_BEXPRContext ctx) {
+        writeToFile("!(", currentFile, true);
+    }
+
+    @Override
+    public void exitN_BEXPR(turntParser.N_BEXPRContext ctx) {
+        writeToFile(")", currentFile, true);
     }
 
 	@Override
@@ -604,6 +624,21 @@ public class translateToJava extends turntBaseListener {
 	public void enterNE_BEXPR(turntParser.NE_BEXPRContext ctx) {
 		writeToFile("!(new Float(", currentFile, true);
 	}
+
+    @Override
+    public void enterSTREQ_BEXPR(turntParser.STREQ_BEXPRContext ctx) {
+        writeToFile("(new String(", currentFile, true);
+    }
+
+    @Override
+    public void enterStreqlexpr(turntParser.StreqlexprContext ctx) {
+        writeToFile(")).equals(", currentFile, true);
+    }
+
+    @Override
+    public void exitStreqlexpr(turntParser.StreqlexprContext ctx) {
+        writeToFile(")", currentFile, true);
+    }
 
     @Override
 	public void enterBEQ_BEXPR(turntParser.BEQ_BEXPRContext ctx) {

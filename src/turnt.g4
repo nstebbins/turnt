@@ -43,10 +43,11 @@ for_blk : 'for' '(' for_expr ')' '{' blocks '}';
 while_blk : 'while' conditional '{' blocks '}';
 
 if_blk: 'if' conditional '{' blocks '}'
-| 'if' conditional '{' blocks '}' 'else' '{' blocks '}'
+| 'if' conditional '{' blocks '}' else_blk
 ;
 
 conditional : '(' bexpr ')' ;
+else_blk : 'else' '{' blocks '}';
 
 //Line statements are single line commands.
 line : prompt
@@ -59,6 +60,7 @@ line : prompt
 | action_stmt
 | declare_line
 | assign_line
+| exit
 ;
 
 //Line statements.
@@ -68,6 +70,8 @@ print : 'print' String ';'  # STRING_PRINT
 | 'print' stateGet ';'      # STATE_PRINT
 | 'print' expr ';'          # EXPR_PRINT
 ;
+
+exit : 'exit' ';';
 
 state :  stateNew
 | stateGet
@@ -116,9 +120,10 @@ assign : declare '=' rexpr  # DEC_ASSIGN
 bexpr : expr '==' eqlsexpr  # EQ_BEXPR
 | expr '!=' eqlsexpr		# NE_BEXPR
 | expr RELOP rexpr          # REL_BEXPR
+| expr '~=' streqlexpr      # STREQ_BEXPR
 | bexpr '==' eqlsbexpr      # BEQ_BEXPR
 | bexpr '!=' eqlsbexpr      # BNE_BEXPR
-| '!' rbexpr                # N_BEXPR
+| '!' bexpr                  # N_BEXPR
 | bexpr '&&' rbexpr         # L_BEXPR
 | bexpr '||' rbexpr         # L_BEXPR
 | '(' bexpr ')'             # P_BEXPR
@@ -127,6 +132,8 @@ bexpr : expr '==' eqlsexpr  # EQ_BEXPR
 ;
 
 eqlsexpr : expr ;
+
+streqlexpr : expr;
 
 eqlsbexpr : bexpr ;
 
@@ -143,6 +150,7 @@ expr : '(' expr ')' 			# P_EXPR
 | expr OP rexpr     			# OP_EXPR
 | INT               			# TERM_EXPR
 | FLOAT             			# TERM_EXPR
+| String                        # TERM_EXPR
 | ID                			# TERM_EXPR
 | ID '[' INT ']'				# ELEM_EXPR
 | '{' expr (',' expr)* '}' 		# ARRAY_EXPR
