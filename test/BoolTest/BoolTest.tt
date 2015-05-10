@@ -1,0 +1,12 @@
+register start main 1;
+dir start {
+    int i = 0;
+    bool b = true;
+    while(b == true){ 
+       print "i";
+       i = i+1;
+       if(i%4==0){
+           b = false;
+       }
+    }
+}
