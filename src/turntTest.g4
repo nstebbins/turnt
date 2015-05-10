@@ -40,13 +40,13 @@ block : for_blk
 //Flow control constructs.
 for_blk : 'for' '(' for_expr ')' '{' blocks '}';
 
-while_blk : 'while' conditional blocks '}';
+while_blk : 'while' conditional '{' blocks '}';
 
-if_blk: 'if' conditional blocks '}'
-| 'if' conditional blocks '}' 'else' '{' blocks '}'
+if_blk: 'if' conditional '{' blocks '}'
+| 'if' conditional '{' blocks '}' 'else' '{' blocks '}'
 ;
 
-conditional : '(' bexpr ')' '{' ;
+conditional : '(' bexpr ')' ;
 
 //Line statements are single line commands.
 line : prompt
@@ -105,7 +105,9 @@ declare : type ID;
 assign_line : assign ';' ;
 
 assign : declare '=' rexpr  # DEC_ASSIGN
+| declare '=' rbexpr        # BDEC_ASSIGN
 | ID '=' rexpr              # ID_ASSIGN
+| ID '=' rbexpr             # BID_ASSIGN
 | '(' assign ')'            # P_ASSIGN
 ;
 
@@ -114,14 +116,19 @@ assign : declare '=' rexpr  # DEC_ASSIGN
 bexpr : expr '==' eqlsexpr  # EQ_BEXPR
 | expr '!=' eqlsexpr		# NE_BEXPR
 | expr RELOP rexpr          # REL_BEXPR
+| bexpr '==' eqlsbexpr      # BEQ_BEXPR
+| bexpr '!=' eqlsbexpr      # BNE_BEXPR
 | '!' rbexpr                # N_BEXPR
 | bexpr '&&' rbexpr         # L_BEXPR
 | bexpr '||' rbexpr         # L_BEXPR
 | '(' bexpr ')'             # P_BEXPR
+| BOOL                      # BOOL
+| ID                        # ID_BEXPR
 ;
 
 eqlsexpr : expr ;
-neqlexpr : expr ;
+
+eqlsbexpr : bexpr ;
 
 rbexpr : bexpr ;
 
