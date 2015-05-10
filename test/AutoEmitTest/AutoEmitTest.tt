@@ -9,6 +9,7 @@ register change2 main 3;
 register change3 main 4;
 register change4 main 5;
 register change5 main 6;
+register change6 main 7;
 
 dir setup {
 	state int check1 5;
@@ -22,39 +23,53 @@ dir setup {
 
 //Tests equality of two 
 dir change {
+	state check1;
 	state check1 10;
 	print "Changed";
 }
 
 //Tests literal autoboxing.
 dir change2 {
+	state check1;
 	state check1 1;
 	print "Changed2";
 }
 
 //Tests >
 dir change3 {
+	state check1;
 	state check1 15;
 	print "Changed3";
 }
 
 //Tests !=
 dir change4 {
+	state check3;
 	state check3 15;
 	print "Changed4";
 }
 
 dir change5 {
+	state check1;
 	state check1 2;
 	print "Changed5";
 }
 
+dir change6 {
+	state check1;
+	state check1 2;
+	print check1;
+	state check1 5;
+}
+
 dir printDone {
+	state check1;
 	state check1 5;
 	print "Done";
 }
 
 dir printDone2 {
+	state check3;
 	state check3 10;
 	print "Done";
 }

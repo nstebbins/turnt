@@ -7,6 +7,6 @@ public class AutoEmitTest {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 	        System.setOut(new PrintStream(out));
 		Main.main(null);
-		Assert.assertEquals("Setup'd\n5\n10\n10\nChanged\nDone\nChanged2\nDone\nChanged3\nDone\nChanged4\nDone\nChanged5\nDone\n", out.toString());
+		Assert.assertEquals("Setup'd\n5\n10\n10\nChanged\nDone\nChanged2\nDone\nChanged3\nDone\nChanged4\nDone\nChanged5\nDone\n2\n", out.toString());
 	}
 }

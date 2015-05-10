@@ -482,7 +482,7 @@ public class translateToJava extends turntBaseListener {
 	public void enterStateSet(turntParser.StateSetContext ctx) {
 		String id = ctx.getChild(1).getText();
 		String type = symbolTable.get(id);
-		writeToFile("State.changeState(\"" + ctx.getChild(1)
+		writeToFile(id + " = (" + mapVars(type) + ") State.changeState(\"" + ctx.getChild(1)
 				+ "\", (Object) " + ctx.getChild(2) + ");\n", currentFile, true);
 	}
 
