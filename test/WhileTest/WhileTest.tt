@@ -4,6 +4,9 @@ dir whileTest {
 	int i = 0 ;
 	while (i < 10) {
 		print "0";
+		if (i == 5) {
+			print "5";
+		}
 		i = i + 1;
 	}
 }

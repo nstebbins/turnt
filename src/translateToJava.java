@@ -4,7 +4,7 @@ import java.io.*;
 
 /** Convert turnt to Java */
 
-public class turntToJava extends turntBaseListener {
+public class translateToJava extends turntBaseListener {
 
 	private boolean hasMain = false;
 	private HashMap<String, ArrayList<DirectiveTuple>> events;
@@ -16,7 +16,7 @@ public class turntToJava extends turntBaseListener {
 	private int curr_list_pos, curr_list_size;
 
 	/** Constructor */
-	public turntToJava(){
+	public translateToJava() {
 		super();
 		events = new HashMap<String, ArrayList<DirectiveTuple>>();
 		directiveList = new ArrayList<String>();
@@ -133,12 +133,10 @@ public class turntToJava extends turntBaseListener {
 				+ "\t\t}\n"
 				+ "\t}\n"
 				+ "}\n";
-		}
-		else{
+		} else {
 			main = main + "\n\t\twhile(engine.hasNext()) {"
 				+ "\n\t\t\tengine.pop()."
 				+ "dir();\n\t\t}\n\t}\n}\n";
-
 		}
 
 		File main_file = new File("Main.java");
@@ -168,8 +166,7 @@ public class turntToJava extends turntBaseListener {
 				engine += "\n\t\tdirectiveMap.put(\"" + dir + "\", new " + dir + "());";
 			}
 			engine += "\n\t}\n\n";
-		}
-		else {
+		} else {
 			engine = engine + "public Engine() { \n\t\t"
 				+ "directiveQueue = new PriorityQueue(); "
 				+ "eventMap = new HashMap<>(); \n\t"
@@ -231,7 +228,7 @@ public class turntToJava extends turntBaseListener {
 			}
 			//Add directives registered to event on top level.
 			Iterator<DirectiveTuple> dirIter = dirs.iterator();
-			while(dirIter.hasNext()){
+			while(dirIter.hasNext()) {
 				DirectiveTuple tup = dirIter.next();
 				String directive = tup.name;
 				event +=  "\n\t\tsuper.register(new "
@@ -270,12 +267,11 @@ public class turntToJava extends turntBaseListener {
 		String directive = ctx.ID().getText() + "Directive";
 		int priority = Integer.parseInt(ctx.getChild(3).getText());
 
-		if(!events.containsKey(event)){
+		if (!events.containsKey(event)) {
 			ArrayList<DirectiveTuple> s = new ArrayList<DirectiveTuple>();
 			s.add(new DirectiveTuple(directive, priority));
 			events.put(event, s);
-		}
-		else{
+		} else {
 			ArrayList<DirectiveTuple> s = events.get(event);
 			s.add(new DirectiveTuple(directive, priority));
 			events.put(event, s);
@@ -290,12 +286,11 @@ public class turntToJava extends turntBaseListener {
 			String directive = ctx.getChild(1).getText() + "Directive";
 			int priority = Integer.parseInt(ctx.getChild(3).getText());
 
-			if(!events.containsKey(event)){
+			if(!events.containsKey(event)) {
 				ArrayList<DirectiveTuple> s = new ArrayList<DirectiveTuple>();
 				s.add(new DirectiveTuple(directive, priority));
 				events.put(event, s);
-			}
-			else{
+			} else {
 				ArrayList<DirectiveTuple> s = events.get(event);
 				s.add(new DirectiveTuple(directive, priority));
 				events.put(event, s);
@@ -422,30 +417,6 @@ public class turntToJava extends turntBaseListener {
 		writeToFile(";", currentFile, true);
 	}
 
-    /*
-	@Override
-	public void enterPrint(turntParser.PrintContext ctx) {
-		int childNum = ctx.getChild(1).getChildCount();
-		String gChild = null;
-		if(childNum > 0){
-			gChild = ctx.getChild(1).getChild(0).getText();  
-
-			if(childNum == 1){
-				writeToFile("System.out.println(" + gChild 
-						+ ".toString());\n", currentFile, true);
-			}
-
-			 //else if(childNum > 0 && !gChild.equals("state")){
-			 //  writeToFile("System.out.println(" + ctx.getChild(1)
-			 //  + ");\n", currentFile, true);
-			  // }
-		}
-		else{
-			writeToFile("System.out.println(" + ctx.getChild(1)
-					+ ");\n", currentFile, true);
-		}    
-	}
-    */
     @Override
     public void enterSTRING_PRINT(turntParser.STRING_PRINTContext ctx) {
         String toPrint = ctx.getChild(1).getText();
@@ -517,7 +488,6 @@ public class turntToJava extends turntBaseListener {
 				currentFile, true);
 	}
 
-	//TODO: Try with resources.
 	//NOTE: If writing to file contained in currentFile, append must be true.
 	//Otherwise, append should be false.
 	private void writeToFile(String toWrite, File file, boolean append) {
@@ -549,7 +519,7 @@ public class turntToJava extends turntBaseListener {
 	}
 
 	@Override
-	public void enterFor_blk(turntParser.For_blkContext ctx){
+	public void enterFor_blk(turntParser.For_blkContext ctx) {
 		String for_blk = ctx.getText();
 		int index = for_blk.indexOf('(');
 		String s = for_blk.substring(0, index+1);
@@ -559,99 +529,10 @@ public class turntToJava extends turntBaseListener {
 	}
 
 	@Override
-	public void exitFor_blk(turntParser.For_blkContext ctx){
-		/*String stmt = ctx.getText();
-		  int index = stmt.indexOf('{');
-		  String s = stmt.substring(0,index+1);
-
-		  RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
-		  int childNum = init.getChild(0).getChildCount();
-		  String first_stmt = init.getText();
-		//System.out.println(childNum);
-		//System.out.println(first_stmt.getText());
-		//String s = block.substring(0,index+1) + "\n";
-		System.out.println(first_stmt);         
-		if(childNum > 0){
-		int i = stmt.indexOf(';');
-		s = s.substring(i,index+1);    
-		//System.out.println(s);
-		}
-		System.out.println(s);
-		s = s + "\n";
-		writeToFile(s, currentFile, true);
-		*/
+	public void exitFor_blk(turntParser.For_blkContext ctx){ 
 		writeToFile("\n}\n", currentFile, true);
 	}
-
-    /*
-	@Override
-	public void enterFor_expr(turntParser.For_exprContext ctx){     
-		String for_expr = ctx.getText();
-		//int index = for_expr.indexOf('{');
-		//  String for_stmt = for_blk.substring(0,index+1) + "\n";
-		//
-		int childNum = ctx.assign().get(0).getChildCount(); 
-		//RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
-		//  int childNum = init.getChild(0).getChildCount();
-		//  String init_stmt = init.getText();
-		//System.out.println(childNum);
-		//  System.out.println(init_stmt.getText());
-		////String s = block.substring(0,index2+1) + "\n";
-		//
-		//System.out.println(childNum);
-		if(childNum == 0){
-			String init_stmt = ctx.getChild(0).getText();
-			writeToFile(init_stmt, currentFile, true);
-			//System.out.println(init_stmt);
-		}
-		//   int i = for_stmt.indexOf('(');
-		//	 String s = for_stmt.substring(0, i+1);
-		//	 writeToFile(s, currentFile, true);
-
-		//	 enterAssign(ctx.for_expr().assign().get(0));
-
-		//	 int j = for_stmt.indexOf(';');
-		//	 String end_stmt = for_stmt.substring(j, index+1);
-		//	 writeToFile(end_stmt, currentFile, true);     
-		//}
-		//else{
-		//	//String s = block.substring(0,index+1) + "\n";
-		//	writeToFile(for_stmt, currentFile, true);
-		//	}
-	}
-    */
-
-    /*
-	@Override
-	public void exitFor_expr(turntParser.For_exprContext ctx){
-		String for_expr = ctx.getText();
-
-		int index = for_expr.indexOf(';');
-		int index2 = for_expr.indexOf(';', index+1);
-		//String mid_stmt = for_expr.substring(index, index2);
-		//writeToFile(mid_stmt, currentFile, true);
-		//System.out.println(mid_stmt);
-		//int childNum = ctx.assign().get(1).getChildCount(); 
-		//RuleContext init = (RuleContext)ctx.getChild(2).getChild(0); 
-		//  int childNum = init.getChild(0).getChildCount();
-		//  String init_stmt = init.getText();
-		//System.out.println(childNum);
-		//  System.out.println(init_stmt.getText());
-		//String s = block.substring(0,index2+1) + "\n";
-		
-		//System.out.println(childNum);
-		//if(childNum == 0){
-		//	String end_stmt = ctx.getChild(4).getText() + "){\n";
-		//	writeToFile(end_stmt, currentFile, true);
-			//System.out.println(end_stmt);
-		//}
-		//else{
-		//	writeToFile("){\n", currentFile, true);
-		//} 
-
-	}
-    */
-
+    
     @Override
     public void enterFor_expr(turntParser.For_exprContext ctx) {
         writeToFile("(", currentFile, true);
@@ -673,7 +554,7 @@ public class turntToJava extends turntBaseListener {
     }
 
 	@Override
-	public void enterWhile_blk(turntParser.While_blkContext ctx){
+	public void enterWhile_blk(turntParser.While_blkContext ctx) {
 		String block = ctx.getText();
 		int index = block.indexOf('{');
 		String s = block.substring(0,index+1) + "\n";
@@ -690,12 +571,12 @@ public class turntToJava extends turntBaseListener {
     }
 
 	@Override
-	public void exitWhile_blk(turntParser.While_blkContext ctx){
+	public void exitWhile_blk(turntParser.While_blkContext ctx) {
 		writeToFile("\n}\n", currentFile, true);
 	}
 
 	@Override
-	public void enterIf_blk(turntParser.If_blkContext ctx){
+	public void enterIf_blk(turntParser.If_blkContext ctx) {
 		String block = ctx.getText();
 		int index = block.indexOf('{');
 		String s = block.substring(0,index+1) + "\n";
@@ -704,33 +585,9 @@ public class turntToJava extends turntBaseListener {
 	}
 
 	@Override
-	public void exitIf_blk(turntParser.If_blkContext ctx){
+	public void exitIf_blk(turntParser.If_blkContext ctx) {
 		writeToFile("\n}\n", currentFile, true);
 	}
-
-    /*
-	@Override
-	public void exitBexpr(turntParser.BexprContext ctx){
-		String s = ctx.getText();
-		String uncle = ctx.getParent().getParent().getChild(0).getText(); 
-		String uncle2 = ctx.getParent().getChild(0).getText(); 
-		if(!uncle.equals("for") && !uncle2.equals("while") 
-				&& !uncle2.equals("if")){
-			s = s + ";\n";
-				}
-		else if(uncle.equals("for")){
-			s = s + ";";
-		}
-		else if(uncle2.equals("while") || uncle2.equals("if")) {
-			s = s + ") {\n";
-		}
-		else{
-			s = "";
-		}
-
-		writeToFile(s, currentFile, true); 
-	}
-    */
 
     @Override
     public void enterRbexpr(turntParser.RbexprContext ctx) {
@@ -800,36 +657,6 @@ public class turntToJava extends turntBaseListener {
 		writeToFile(id, currentFile, true);
 	}
 
-    /*
-	@Override
-	public void exitAssign(turntParser.AssignContext ctx){  
-		int childNum = ctx.getChild(0).getChildCount();
-		String s = null; 
-		if(childNum > 0){
-			String child = ctx.getChild(0).getText();
-			s = ctx.getText().replace(child, ""); 
-			//writeToFile(s, currentFile, true); 
-		}
-		else{
-			s = ctx.getText();
-			//writeToFile(s, currentFile, true);
-		}
-
-		String sib = ctx.getParent().getParent().getChild(0).getText(); 
-		if(!sib.equals("for")){
-			s = s + ";\n";
-		}
-		else{
-			String sib2 = ctx.getParent().getParent().getChild(2).getChild(0).getText();
-			if(sib2.equals(ctx.getText())){
-				s = s + ";";
-			} 
-		} 
-
-		writeToFile(s, currentFile, true); 
-	}
-    */
-
     @Override
     public void exitDeclare(turntParser.DeclareContext ctx) {
         String id = ctx.getChild(1).getText();
@@ -884,7 +711,7 @@ public class turntToJava extends turntBaseListener {
     }
 
 	@Override
-	public void enterType(turntParser.TypeContext ctx){
+	public void enterType(turntParser.TypeContext ctx) {
 		String s = null;
 
 		int childNum = ctx.getParent().getChildCount();
@@ -893,7 +720,7 @@ public class turntToJava extends turntBaseListener {
 		int index;
 		for(index=0; index<childNum; index++){
 			String sib = ctx.getParent().getChild(index).getText();
-			if(sample.contains(sib)){
+			if(sample.contains(sib)) {
 				break;
 			} 
 		}
@@ -901,27 +728,21 @@ public class turntToJava extends turntBaseListener {
 		String type = ctx.getText();
 
 		String ID = ctx.getParent().getChild(index+1).getText();
-		if(type.equals("int")){
+		if(type.equals("int")) {
 			s = "Integer ";
-		}
-		else if(type.equals("float")){
+		} else if(type.equals("float")) {
 			s = "Double ";
-		}
-		else if(type.equals("bool")){
+		} else if(type.equals("bool")) {
 			s = "Boolean ";
-		}
-		else if(type.equals("char")){
+		} else if(type.equals("char")) {
 			s = "Character ";
-		}
-		else if(type.equals("String")){
+		} else if(type.equals("String")) {
 			s = "String ";
-		}
-		else if(type.contains("list")) {
+		} else if(type.contains("list")) {
 			curr_array_name = ID; curr_list_pos = 0;
 			if(type.equals("list int")) {
 				s = "ArrayList<Integer> " + ID + " = new ArrayList<Integer>();\n";
-			}
-			else if(type.equals("list float")) {
+			} else if(type.equals("list float")) {
 				s = "ArrayList<Double> " + ID + " = new ArrayList<Double>();\n";
 			}
 		}
@@ -965,8 +786,7 @@ public class turntToJava extends turntBaseListener {
     	if(!curr_array_name.isEmpty() && curr_list_pos <= curr_list_size - 1) {
     		writeToFile(curr_array_name + ".add(" + ctx.getText() + ");\n", currentFile, true);
     		curr_list_pos++;
-    	}
-    	else {
+    	} else {
     		// last array element or something else
     		writeToFile(ctx.getText(), currentFile, true);
     	}

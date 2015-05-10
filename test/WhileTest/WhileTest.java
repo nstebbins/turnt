@@ -7,6 +7,6 @@ public class WhileTest {
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 	        System.setOut(new PrintStream(out));
 		Main.main(null);
-		Assert.assertEquals("0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n", out.toString());
+		Assert.assertEquals("0\n0\n0\n0\n0\n0\n5\n0\n0\n0\n0\n", out.toString());
 	}
 }
