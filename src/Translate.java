@@ -11,13 +11,13 @@ public class Translate {
 		ANTLRInputStream input = new ANTLRInputStream(System.in);
 
 		// create a lexer that feeds off of input CharStream
-		turntTestLexer lexer = new turntTestLexer(input);
+		turntLexer lexer = new turntLexer(input);
 
 		// create a buffer of tokens pulled from the lexe
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 
 		// create a parser that feeds off the tokens buffer
-		turntTestParser parser = new turntTestParser(tokens);
+		turntParser parser = new turntParser(tokens);
 
 		ParseTree tree = parser.prgm(); // begin parsing at init rule
 

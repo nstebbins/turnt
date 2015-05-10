@@ -4,7 +4,7 @@ import java.io.*;
 
 /** Convert turnt to Java */
 
-public class turntToJava extends turntTestBaseListener {
+public class turntToJava extends turntBaseListener {
 
 	private boolean hasMain = false;
 	private HashMap<String, ArrayList<DirectiveTuple>> events;
@@ -30,7 +30,7 @@ public class turntToJava extends turntTestBaseListener {
 
 	/** Create essential java files */
 	@Override
-	public void enterPrgm(turntTestParser.PrgmContext ctx) {
+	public void enterPrgm(turntParser.PrgmContext ctx) {
 		/* Create State.java */
 		String state = /*package turnt;*/ 
 			"\n\nimport java.util.HashMap;\n\n"
@@ -118,7 +118,7 @@ public class turntToJava extends turntTestBaseListener {
 
 
 	@Override
-	public void exitPrgm(turntTestParser.PrgmContext ctx) {
+	public void exitPrgm(turntParser.PrgmContext ctx) {
 		/* Create Main.java */
 		String main = /*package turnt;*/ "\n\nimport java.util.*;"
 			+ "\n\npublic class Main "
@@ -264,7 +264,7 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void enterRegisterMain(turntTestParser.RegisterMainContext ctx) {
+	public void enterRegisterMain(turntParser.RegisterMainContext ctx) {
 		hasMain = true;
 		String event = ctx.getChild(2).getText() + "Event";
 		String directive = ctx.ID().getText() + "Directive";
@@ -283,7 +283,7 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void enterRegister(turntTestParser.RegisterContext ctx) {
+	public void enterRegister(turntParser.RegisterContext ctx) {
 		if (currentFile == null) {
 			//Not in a block.
 			String event = ctx.getChild(2).getText() + "Event";
@@ -311,7 +311,7 @@ public class turntToJava extends turntTestBaseListener {
 
 	/** Create java files associated with Directives */
 	@Override
-	public void enterDir(turntTestParser.DirContext ctx) {
+	public void enterDir(turntParser.DirContext ctx) {
 		String ID = ctx.ID().getText();
 		directiveList.add(ID + "Directive");
 		String dir = /*package turnt;*/ 
@@ -331,14 +331,14 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void exitDir(turntTestParser.DirContext ctx) {
+	public void exitDir(turntParser.DirContext ctx) {
 		writeToFile("\t}\n}\n", currentFile, true);
 		currentFile = null;
 	}
 
 	/* modify files properly for actions */
 	@Override
-	public void enterAction(turntTestParser.ActionContext ctx) {
+	public void enterAction(turntParser.ActionContext ctx) {
 		// declared action?
 		String ID = ctx.ID().getText();
 		String action = "\n\npublic static void " + ID + "()" + "{\n";
@@ -350,7 +350,7 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void exitAction(turntTestParser.ActionContext ctx) {
+	public void exitAction(turntParser.ActionContext ctx) {
 		File action_file = new File("Actions.java");
 		writeToFile("}\n\n", action_file, true);
 		currentFile = null;
@@ -358,7 +358,7 @@ public class turntToJava extends turntTestBaseListener {
 
 	/* triggering actions */
 	@Override
-	public void enterAction_stmt(turntTestParser.Action_stmtContext ctx) {
+	public void enterAction_stmt(turntParser.Action_stmtContext ctx) {
 		String ID = ctx.ID().getText();
 		String currtext = "\nActions." + ID + "();";
 
@@ -366,13 +366,13 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void exitAction_stmt(turntTestParser.Action_stmtContext ctx) {
+	public void exitAction_stmt(turntParser.Action_stmtContext ctx) {
 
 	}
 
 	//TODO: error if no event for register event.
 	@Override
-	public void enterAE_EVENT(turntTestParser.AE_EVENTContext ctx) {
+	public void enterAE_EVENT(turntParser.AE_EVENTContext ctx) {
 		String ID = ctx.ID().getText();
 		currentFile = new File(ID + "Event.java");
 		writeToFile("\n\npublic class " + ID + "Event extends Event {\n"
@@ -387,12 +387,12 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void exitAE_EVENT(turntTestParser.AE_EVENTContext ctx) {
+	public void exitAE_EVENT(turntParser.AE_EVENTContext ctx) {
 		writeToFile("\n\t}\n\n", currentFile, true);
 		currentFile = null;
 	}
 	@Override
-	public void enterNAE_EVENT(turntTestParser.NAE_EVENTContext ctx) {
+	public void enterNAE_EVENT(turntParser.NAE_EVENTContext ctx) {
 		String ID = ctx.ID().getText();
 		currentFile = new File(ID + "Event.java");
 		// No auto-emit condition
@@ -408,23 +408,23 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void exitNAE_EVENT(turntTestParser.NAE_EVENTContext ctx) {
+	public void exitNAE_EVENT(turntParser.NAE_EVENTContext ctx) {
 		currentFile = null;
 	}
 
 	@Override
-	public void enterEmitOn(turntTestParser.EmitOnContext ctx) {
+	public void enterEmitOn(turntParser.EmitOnContext ctx) {
 		writeToFile("return ", currentFile, true);
 	}
 
 	@Override
-	public void exitEmitOn(turntTestParser.EmitOnContext ctx) {
+	public void exitEmitOn(turntParser.EmitOnContext ctx) {
 		writeToFile(";", currentFile, true);
 	}
 
     /*
 	@Override
-	public void enterPrint(turntTestParser.PrintContext ctx) {
+	public void enterPrint(turntParser.PrintContext ctx) {
 		int childNum = ctx.getChild(1).getChildCount();
 		String gChild = null;
 		if(childNum > 0){
@@ -447,18 +447,18 @@ public class turntToJava extends turntTestBaseListener {
 	}
     */
     @Override
-    public void enterSTRING_PRINT(turntTestParser.STRING_PRINTContext ctx) {
+    public void enterSTRING_PRINT(turntParser.STRING_PRINTContext ctx) {
         String toPrint = ctx.getChild(1).getText();
         writeToFile("System.out.println(" + toPrint + ");\n", currentFile, true);
     }
 
     @Override
-    public void enterEXPR_PRINT(turntTestParser.EXPR_PRINTContext ctx) {
+    public void enterEXPR_PRINT(turntParser.EXPR_PRINTContext ctx) {
         writeToFile("System.out.println(", currentFile, true);
     }
 
     @Override
-    public void exitEXPR_PRINT(turntTestParser.EXPR_PRINTContext ctx) {
+    public void exitEXPR_PRINT(turntParser.EXPR_PRINTContext ctx) {
         writeToFile(");\n", currentFile, true);
     }
 
@@ -466,17 +466,12 @@ public class turntToJava extends turntTestBaseListener {
 		PROMPT: write user input to identifer
 	*/
 	@Override
-	public void enterPrompt(turntTestParser.PromptContext ctx) {
+	public void enterPrompt(turntParser.PromptContext ctx) {
 		String ID = ctx.ID().getText();
 
 		// write to current file
 		String scanner = "\nScanner in = new Scanner(System.in);";
-		String prompt = "\nif(" + ID + " instanceof Integer) {" + 
-						"\n" + ID + " = in.nextInt(); }" + 
-						"\nelse if(" + ID + " instanceof Double) {" + 
-						"\n" + ID + " = in.nextDouble(); }" + 
-						"\nelse {" + 
-						"\n" + ID + " = in.nextLine(); }";
+        String prompt = "\n" + ID + " = in.nextLine();";
 
 		writeToFile(scanner, currentFile, true);
 		writeToFile(prompt, currentFile, true);
@@ -484,7 +479,7 @@ public class turntToJava extends turntTestBaseListener {
 
 	//TODO: Must make state into an expr.
 	@Override
-	public void enterStateNew(turntTestParser.StateNewContext ctx) {
+	public void enterStateNew(turntParser.StateNewContext ctx) {
 		String id = ctx.getChild(2).getText();
 		String type = ctx.getChild(1).getText();
 		symbolTable.put(id, type);
@@ -494,13 +489,13 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void exitStateNew(turntTestParser.StateNewContext ctx) {
+	public void exitStateNew(turntParser.StateNewContext ctx) {
 		writeToFile("(\"" + ctx.getChild(3) + "\"));\n",
 				currentFile, true);
 	}
 
 	@Override
-	public void enterStateGet(turntTestParser.StateGetContext ctx) {
+	public void enterStateGet(turntParser.StateGetContext ctx) {
 		String id = ctx.getChild(1).getText();
 		String type = symbolTable.get(id);
 		writeToFile(mapVars(type) + " " + id + " = (" + mapVars(type)
@@ -508,7 +503,7 @@ public class turntToJava extends turntTestBaseListener {
 				currentFile, true);
 	}
 	@Override
-	public void enterStateSet(turntTestParser.StateSetContext ctx) {
+	public void enterStateSet(turntParser.StateSetContext ctx) {
 		String id = ctx.getChild(1).getText();
 		String type = symbolTable.get(id);
 		writeToFile("State.changeState(\"" + ctx.getChild(1)
@@ -517,7 +512,7 @@ public class turntToJava extends turntTestBaseListener {
 
 	//Emit
 	@Override
-	public void enterEmit(turntTestParser.EmitContext ctx) {
+	public void enterEmit(turntParser.EmitContext ctx) {
 		writeToFile("Engine.emitEvent(\"" + ctx.getChild(1) + "Event\");\n",
 				currentFile, true);
 	}
@@ -554,7 +549,7 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void enterFor_blk(turntTestParser.For_blkContext ctx){
+	public void enterFor_blk(turntParser.For_blkContext ctx){
 		String for_blk = ctx.getText();
 		int index = for_blk.indexOf('(');
 		String s = for_blk.substring(0, index+1);
@@ -564,7 +559,7 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void exitFor_blk(turntTestParser.For_blkContext ctx){
+	public void exitFor_blk(turntParser.For_blkContext ctx){
 		/*String stmt = ctx.getText();
 		  int index = stmt.indexOf('{');
 		  String s = stmt.substring(0,index+1);
@@ -590,7 +585,7 @@ public class turntToJava extends turntTestBaseListener {
 
     /*
 	@Override
-	public void enterFor_expr(turntTestParser.For_exprContext ctx){     
+	public void enterFor_expr(turntParser.For_exprContext ctx){     
 		String for_expr = ctx.getText();
 		//int index = for_expr.indexOf('{');
 		//  String for_stmt = for_blk.substring(0,index+1) + "\n";
@@ -628,7 +623,7 @@ public class turntToJava extends turntTestBaseListener {
 
     /*
 	@Override
-	public void exitFor_expr(turntTestParser.For_exprContext ctx){
+	public void exitFor_expr(turntParser.For_exprContext ctx){
 		String for_expr = ctx.getText();
 
 		int index = for_expr.indexOf(';');
@@ -658,27 +653,27 @@ public class turntToJava extends turntTestBaseListener {
     */
 
     @Override
-    public void enterFor_expr(turntTestParser.For_exprContext ctx) {
+    public void enterFor_expr(turntParser.For_exprContext ctx) {
         writeToFile("(", currentFile, true);
     }
 
     @Override
-    public void exitFor_expr(turntTestParser.For_exprContext ctx) {
+    public void exitFor_expr(turntParser.For_exprContext ctx) {
         writeToFile(") {\n", currentFile, true);
     }
 
     @Override
-    public void exitFor_init(turntTestParser.For_initContext ctx) {
+    public void exitFor_init(turntParser.For_initContext ctx) {
         writeToFile("; ", currentFile, true);
     }
 
     @Override
-    public void exitFor_condition(turntTestParser.For_conditionContext ctx) {
+    public void exitFor_condition(turntParser.For_conditionContext ctx) {
         writeToFile("; ", currentFile, true);
     }
 
 	@Override
-	public void enterWhile_blk(turntTestParser.While_blkContext ctx){
+	public void enterWhile_blk(turntParser.While_blkContext ctx){
 		String block = ctx.getText();
 		int index = block.indexOf('{');
 		String s = block.substring(0,index+1) + "\n";
@@ -686,21 +681,21 @@ public class turntToJava extends turntTestBaseListener {
 		writeToFile("while ", currentFile, true);
 	}
 
-    public void enterConditional(turntTestParser.ConditionalContext ctx) {
+    public void enterConditional(turntParser.ConditionalContext ctx) {
         writeToFile("(", currentFile, true);
     }
 
-    public void exitConditional( turntTestParser.ConditionalContext ctx) {
+    public void exitConditional( turntParser.ConditionalContext ctx) {
         writeToFile(") {", currentFile, true);
     }
 
 	@Override
-	public void exitWhile_blk(turntTestParser.While_blkContext ctx){
+	public void exitWhile_blk(turntParser.While_blkContext ctx){
 		writeToFile("\n}\n", currentFile, true);
 	}
 
 	@Override
-	public void enterIf_blk(turntTestParser.If_blkContext ctx){
+	public void enterIf_blk(turntParser.If_blkContext ctx){
 		String block = ctx.getText();
 		int index = block.indexOf('{');
 		String s = block.substring(0,index+1) + "\n";
@@ -709,13 +704,13 @@ public class turntToJava extends turntTestBaseListener {
 	}
 
 	@Override
-	public void exitIf_blk(turntTestParser.If_blkContext ctx){
+	public void exitIf_blk(turntParser.If_blkContext ctx){
 		writeToFile("\n}\n", currentFile, true);
 	}
 
     /*
 	@Override
-	public void exitBexpr(turntTestParser.BexprContext ctx){
+	public void exitBexpr(turntParser.BexprContext ctx){
 		String s = ctx.getText();
 		String uncle = ctx.getParent().getParent().getChild(0).getText(); 
 		String uncle2 = ctx.getParent().getChild(0).getText(); 
@@ -738,76 +733,76 @@ public class turntToJava extends turntTestBaseListener {
     */
 
     @Override
-    public void enterRbexpr(turntTestParser.RbexprContext ctx) {
+    public void enterRbexpr(turntParser.RbexprContext ctx) {
         String op = ctx.getParent().getChild(1).getText();
         writeToFile(" " + op + " ", currentFile, true);
     }
 
 	@Override
-	public void enterEQ_BEXPR(turntTestParser.EQ_BEXPRContext ctx) {
+	public void enterEQ_BEXPR(turntParser.EQ_BEXPRContext ctx) {
 		writeToFile("(new Float(", currentFile, true);
 	}
 
 	@Override
-	public void enterNE_BEXPR(turntTestParser.NE_BEXPRContext ctx) {
+	public void enterNE_BEXPR(turntParser.NE_BEXPRContext ctx) {
 		writeToFile("!(new Float(", currentFile, true);
 	}
 
     @Override
-	public void enterBEQ_BEXPR(turntTestParser.BEQ_BEXPRContext ctx) {
+	public void enterBEQ_BEXPR(turntParser.BEQ_BEXPRContext ctx) {
 		writeToFile("(new Boolean(", currentFile, true);
 	}
 
 	@Override
-	public void enterBNE_BEXPR(turntTestParser.BNE_BEXPRContext ctx) {
+	public void enterBNE_BEXPR(turntParser.BNE_BEXPRContext ctx) {
 		writeToFile("!(new Boolean(", currentFile, true);
 	}
 
 	@Override
-	public void enterEqlsexpr(turntTestParser.EqlsexprContext ctx) {
+	public void enterEqlsexpr(turntParser.EqlsexprContext ctx) {
 		writeToFile(")).equals(new Float(", currentFile, true);
 	}
 
 	@Override
-	public void exitEqlsexpr(turntTestParser.EqlsexprContext ctx) {
+	public void exitEqlsexpr(turntParser.EqlsexprContext ctx) {
 		writeToFile("))", currentFile, true);
 	}
 
     @Override
-	public void enterEqlsbexpr(turntTestParser.EqlsbexprContext ctx) {
+	public void enterEqlsbexpr(turntParser.EqlsbexprContext ctx) {
 		writeToFile(")).equals(new Boolean(", currentFile, true);
 	}
 
 	@Override
-	public void exitEqlsbexpr(turntTestParser.EqlsbexprContext ctx) {
+	public void exitEqlsbexpr(turntParser.EqlsbexprContext ctx) {
 		writeToFile("))", currentFile, true);
 	}
 
     @Override
-    public void enterP_BEXPR(turntTestParser.P_BEXPRContext ctx) {
+    public void enterP_BEXPR(turntParser.P_BEXPRContext ctx) {
         writeToFile("(", currentFile, true);
     }
 
     @Override
-    public void exitP_BEXPR(turntTestParser.P_BEXPRContext ctx) {
+    public void exitP_BEXPR(turntParser.P_BEXPRContext ctx) {
         writeToFile(")", currentFile, true);
     }
 
     @Override
-	public void enterBOOL(turntTestParser.BOOLContext ctx){
+	public void enterBOOL(turntParser.BOOLContext ctx){
 	    String bool = ctx.getText();
 		writeToFile(bool, currentFile, true);
 	}
 
     @Override
-	public void enterID_BEXPR(turntTestParser.ID_BEXPRContext ctx){
+	public void enterID_BEXPR(turntParser.ID_BEXPRContext ctx){
 	    String id = ctx.getText();
 		writeToFile(id, currentFile, true);
 	}
 
     /*
 	@Override
-	public void exitAssign(turntTestParser.AssignContext ctx){  
+	public void exitAssign(turntParser.AssignContext ctx){  
 		int childNum = ctx.getChild(0).getChildCount();
 		String s = null; 
 		if(childNum > 0){
@@ -836,60 +831,60 @@ public class turntToJava extends turntTestBaseListener {
     */
 
     @Override
-    public void exitDeclare(turntTestParser.DeclareContext ctx) {
+    public void exitDeclare(turntParser.DeclareContext ctx) {
         String id = ctx.getChild(1).getText();
         id = !curr_array_name.isEmpty() ? "" : id;
         writeToFile(id, currentFile, true);
     }
 
     @Override
-    public void exitDeclare_line(turntTestParser.Declare_lineContext ctx) {
+    public void exitDeclare_line(turntParser.Declare_lineContext ctx) {
         writeToFile(";\n", currentFile, true);
     }
 
     @Override
-    public void exitAssign_line(turntTestParser.Assign_lineContext ctx) {
+    public void exitAssign_line(turntParser.Assign_lineContext ctx) {
         String toPrint = !curr_array_name.isEmpty() ? "\n" : ";\n";
         writeToFile(toPrint, currentFile, true);
         curr_array_name = ""; curr_list_pos = 0; curr_list_size = 0; // reset
     }
 
     @Override
-    public void enterID_ASSIGN(turntTestParser.ID_ASSIGNContext ctx) {
+    public void enterID_ASSIGN(turntParser.ID_ASSIGNContext ctx) {
     	String id = ctx.getChild(0).getText();
         writeToFile(id, currentFile, true);
     }
 
     @Override
-    public void enterBID_ASSIGN(turntTestParser.BID_ASSIGNContext ctx) {
+    public void enterBID_ASSIGN(turntParser.BID_ASSIGNContext ctx) {
     	String id = ctx.getChild(0).getText();
         writeToFile(id, currentFile, true);
     }
 
     @Override
-    public void enterELEM_EXPR(turntTestParser.ELEM_EXPRContext ctx) {
+    public void enterELEM_EXPR(turntParser.ELEM_EXPRContext ctx) {
         String [] stuff = ctx.getText().split("\\[|\\]");
         String elem_access = stuff[0] + ".get(" + stuff[1] + ");"; 
         writeToFile(elem_access, currentFile, true);
     }
 
     @Override
-    public void exitELEM_EXPR(turntTestParser.ELEM_EXPRContext ctx) {
+    public void exitELEM_EXPR(turntParser.ELEM_EXPRContext ctx) {
     	// ...
     }
 
     @Override
-    public void enterP_ASSIGN(turntTestParser.P_ASSIGNContext ctx) {
+    public void enterP_ASSIGN(turntParser.P_ASSIGNContext ctx) {
         writeToFile("(", currentFile, true);
     }
 
     @Override
-    public void exitP_ASSIGN(turntTestParser.P_ASSIGNContext ctx) {
+    public void exitP_ASSIGN(turntParser.P_ASSIGNContext ctx) {
         writeToFile(")", currentFile, true);
     }
 
 	@Override
-	public void enterType(turntTestParser.TypeContext ctx){
+	public void enterType(turntParser.TypeContext ctx){
 		String s = null;
 
 		int childNum = ctx.getParent().getChildCount();
@@ -936,36 +931,36 @@ public class turntToJava extends turntTestBaseListener {
 	}
     
 	@Override
-    public void enterP_EXPR(turntTestParser.P_EXPRContext ctx) {
+    public void enterP_EXPR(turntParser.P_EXPRContext ctx) {
         writeToFile("(", currentFile, true);
     }
 
-    public void exitP_EXPR(turntTestParser.P_EXPRContext ctx) {
+    public void exitP_EXPR(turntParser.P_EXPRContext ctx) {
         writeToFile(")", currentFile, true);
     }
 
     @Override
-    public void enterARRAY_EXPR(turntTestParser.ARRAY_EXPRContext ctx) {
+    public void enterARRAY_EXPR(turntParser.ARRAY_EXPRContext ctx) {
         curr_list_size = ctx.getText().split(",").length;
         // writeToFile("{", currentFile, true);
     }
 
-    public void exitARRAY_EXPR(turntTestParser.ARRAY_EXPRContext ctx) {
+    public void exitARRAY_EXPR(turntParser.ARRAY_EXPRContext ctx) {
         // writeToFile("}", currentFile, true);
     }
 
 	@Override
-    public void enterNEG_EXPR(turntTestParser.NEG_EXPRContext ctx) {
+    public void enterNEG_EXPR(turntParser.NEG_EXPRContext ctx) {
         writeToFile("-(", currentFile, true);
     }
 
 	@Override
-    public void exitNEG_EXPR(turntTestParser.NEG_EXPRContext ctx) {
+    public void exitNEG_EXPR(turntParser.NEG_EXPRContext ctx) {
         writeToFile(")", currentFile, true);
     }
 
 	@Override
-    public void enterTERM_EXPR(turntTestParser.TERM_EXPRContext ctx) {
+    public void enterTERM_EXPR(turntParser.TERM_EXPRContext ctx) {
         
     	if(!curr_array_name.isEmpty() && curr_list_pos <= curr_list_size - 1) {
     		writeToFile(curr_array_name + ".add(" + ctx.getText() + ");\n", currentFile, true);
@@ -979,7 +974,7 @@ public class turntToJava extends turntTestBaseListener {
     }
 
 	@Override
-    public void enterRexpr(turntTestParser.RexprContext ctx) {
+    public void enterRexpr(turntParser.RexprContext ctx) {
         String op = ctx.getParent().getChild(1).getText();
         op = !curr_array_name.isEmpty() ? "" : op;
         writeToFile(" " + op + " ", currentFile, true);
