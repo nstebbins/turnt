@@ -88,6 +88,7 @@ stateSet : 'state' ID String ';'
 | 'state' ID INT ';'
 | 'state' ID FLOAT ';'
 | 'state' ID BOOL ';'
+| 'state' ID ID ';'
 ;
 
 emit : 'emit' ID 'in' ID ';'

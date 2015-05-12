@@ -466,7 +466,7 @@ public class translateToJava extends turntBaseListener {
 
 	@Override
 	public void exitStateNew(turntParser.StateNewContext ctx) {
-		writeToFile("(\"" + ctx.getChild(3) + "\"));\n",
+		writeToFile("(" + ctx.getChild(3) + "));\n",
 				currentFile, true);
 	}
 
